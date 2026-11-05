@@ -43,6 +43,7 @@ class SubtitleGen(BaseTool):
         "type": "object",
         "required": ["segments"],
         "properties": {
+            "cues": {"type": "array", "description": "Pre-aligned cues; preserve their text and timing"},
             "segments": {
                 "type": "array",
                 "description": "Transcript segments from transcriber (with words and timestamps)",
@@ -95,7 +96,11 @@ class SubtitleGen(BaseTool):
             segments = self._apply_corrections(segments, corrections)
 
         # Build cues from word-level timestamps
-        cues = self._build_cues(segments, max_words, max_chars)
+        cues = inputs.get("cues")
+        if cues is None:
+            cues = self._build_cues(segments, max_words, max_chars)
+        else:
+            cues = [{**cue, "index": i + 1, "words": cue.get("words", [])} for i, cue in enumerate(cues)]
 
         if fmt == "srt":
             content = self._render_srt(cues, highlight_style)

@@ -38,7 +38,7 @@ class DashScopeDialogue(BaseTool):
             folder.mkdir(parents=True, exist_ok=True)
             files = [folder/f"{name}.source.txt", folder/f"{name}.prompt.txt", folder/f"{name}.json"]
             files[0].write_text(inputs["source_text"], encoding="utf-8", newline="")
-            files[1].write_text(result["text_prompt"], encoding="utf-8")
+            files[1].write_text(result.get("text_prompt", json.dumps(result.get("chunks", []), ensure_ascii=False, indent=2)), encoding="utf-8")
             files[2].write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
             return ToolResult(success=True, model=result["model"], data=result, artifacts=[str(p) for p in files])
         except (ValueError, KeyError, TypeError, OSError, jsonschema.ValidationError) as exc:

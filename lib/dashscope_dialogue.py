@@ -10,7 +10,8 @@ from lib.dashscope_references import reference_info, reject_ssml
 def compile_dialogue(source, roles, segments=None, source_format=None, model=None, library=VOICE_LIBRARY):
     profile = speech_model(model)
     if profile.protocol != "audio_generation":
-        raise ValueError("Multi-role dialogue requires a configured audio_generation model")
+        from lib.dashscope_flash import compile_flash
+        return compile_flash(source, roles, segments, source_format, profile.model, library)
     if not source.strip() or not roles:
         raise ValueError("source_text and explicit role mappings are required")
     reject_ssml(source)

@@ -43,7 +43,8 @@ def resolve_voices(roles: dict, model: str, library: Path = VOICE_LIBRARY) -> di
                 record = json.loads(path.read_text(encoding="utf-8-sig"))
                 if record.get("success") is not True or record.get("provider") != "dashscope":
                     raise ValueError("Library voice is not a successful DashScope enrollment")
-                voice = {"name": value, "voice_id": record["data"]["voice_id"], "model": record["model"]}
+                voice = {"name": value, "voice_id": record["data"]["voice_id"], "model": record["model"],
+                         "ssml_supported": record.get("ssml_supported", True)}
             elif isinstance(value, dict):
                 voice = dict(value)
             else:
@@ -143,6 +144,26 @@ def validate_ssml(text: str, model: str, voice_models: dict | None = None) -> di
         parts = [speak.text or ""]
         consecutive_ms = 0
         for child in speak:
+            if child.tag in {"sub", "phoneme", "say-as"}:
+                if len(child) or not child.text:
+                    raise ValueError("Pronunciation tags must contain only nonempty text")
+                if child.tag == "sub":
+                    valid = set(child.attrib) == {"alias"} and bool(child.get("alias", "").strip())
+                elif child.tag == "phoneme":
+                    valid = (set(child.attrib) == {"alphabet", "ph"}
+                             and child.get("alphabet") in {"py", "cmu"} and bool(child.get("ph", "").strip()))
+                    if valid and child.get("alphabet") == "py":
+                        valid = len(child.get("ph").split()) == len(child.text) and all(
+                            re.fullmatch(r"[a-zA-ZüÜ:]+[1-5]", p) for p in child.get("ph").split())
+                else:
+                    valid = set(child.attrib) == {"interpret-as"} and child.get("interpret-as") in {
+                        "cardinal", "digits", "telephone", "name", "address", "id", "characters",
+                        "punctuation", "date", "time", "currency", "measure"}
+                if not valid:
+                    raise ValueError(f"Invalid {child.tag} attributes")
+                parts.extend([child.text, child.tail or ""])
+                consecutive_ms = 0
+                continue
             if child.tag != "break" or set(child.attrib) != {"time"} or len(child) or child.text:
                 raise ValueError("Only empty break tags with a time attribute are supported inside speak")
             val = child.get("time", "")
@@ -231,6 +252,16 @@ def compile_ssml(source: str, roles: dict, segments: list[dict] | None = None,
             speak.text = text
         else:
             last.tail = text[offset:]
+        if "ssml" in segment:
+            if segment.get("breaks"):
+                raise ValueError("Use either ssml or breaks, not both")
+            markup = segment["ssml"]
+            validate_ssml(markup, model, {voices[role]["voice_id"]: model})
+            speak = ET.fromstring(markup)
+            if speak.tag != "speak" or speak.get("voice") != voices[role]["voice_id"]:
+                raise ValueError("Segment SSML voice must match its role")
+            if "".join(speak.itertext()) != text:
+                raise ValueError("SSML display text must match the original source slice")
         # XML normalizes literal CR/CRLF on parsing; references preserve source bytes.
         fragments.append(ET.tostring(speak, encoding="unicode", short_empty_elements=True).replace("\r", "&#13;"))
         normalized.append({**segment, "text": text, "voice_id": voices[role]["voice_id"]})

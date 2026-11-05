@@ -1,0 +1,5 @@
+# Optional local sentence-subtitle runtime for Flash dialogue.
+faster-whisper==1.2.1
+# 1.2.1 passes metadata_errors to av.open; PyAV 19 removed that argument.
+av>=11,<19
+opencc-python-reimplemented>=0.1.7,<0.2

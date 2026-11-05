@@ -25,6 +25,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--project-dir", type=Path, required=True)
     parser.add_argument("--artifact-name", default="dialogue")
     parser.add_argument("--synthesize", action="store_true", help="Make one paid request; default only compiles locally")
+    parser.add_argument("--gap-ms", type=float, default=300, help="Flash turn gap in milliseconds")
+    parser.add_argument("--subtitle-model", default="small", choices=["tiny", "base", "small", "medium", "large-v2", "large-v3"])
+    parser.add_argument("--language", default="zh")
     args = parser.parse_args(argv)
     registry.discover("tools.audio")
     tool = registry.get("dashscope_ssml" if args.ssml else "dashscope_dialogue")
@@ -55,6 +58,16 @@ def main(argv: list[str] | None = None) -> int:
                       "characters": sum(len(s["text"]) for s in compilation.data["segments"])}, ensure_ascii=False), flush=True)
     if not args.synthesize:
         return 0
+    if compilation.data.get("mode") == "segmented":
+        renderer = registry.get("dashscope_dialogue_render")
+        print(f"Flash segmented synthesis: {len(compilation.data['chunks'])} requests; voices "
+              f"{[v['voice_id'] for v in compilation.data['roles'].values()]}", flush=True)
+        result = renderer.execute({"plan": compilation.data,
+                                   "output_dir": str(project / "assets" / "audio" / args.artifact_name),
+                                   "gap_ms": args.gap_ms, "model_size": args.subtitle_model,
+                                   "language": args.language})
+        print(json.dumps({"success": result.success, "error": result.error, "data": result.data}, ensure_ascii=False))
+        return 0 if result.success else 1
     if not compilation.data["synthesis_validation"]["allowed"]:
         print(compilation.data["synthesis_validation"]["reason"])
         return 1

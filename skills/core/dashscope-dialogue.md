@@ -79,3 +79,40 @@ suffix or replaced inside a cloned voice ID. Enrollment separately uses
 records or imply that Next accepts enrollment IDs.
 
 Official reference: https://help.aliyun.com/zh/model-studio/audio-generation-api
+
+## Flash 分段对话（可选）
+
+保持 Next 为默认模型。使用 `--model flash` 选择按完整发言轮次合成：
+
+```powershell
+uv --cache-dir .cache/uv run --no-project --python .venv/Scripts/python.exe python -m examples.dashscope_ssml --source projects/my-project/manuscript.txt --roles projects/my-project/roles.json --project-dir projects/my-project --model flash
+```
+
+先检查编译产物，再加 `--synthesize` 生成音频、句级字幕与时间轴。此模式通过注册工具
+`dashscope_dialogue_render` 执行，底层调用 `dashscope_tts`、`transcriber`、`subtitle_gen`。
+使用 `uv pip install --python .venv/Scripts/python.exe -r requirements-audio.txt` 安装本地识别依赖。
+首次识别需要下载 Whisper 模型；默认 `small`，可通过 `--subtitle-model` 修改。
+
+roles.json 中可以直接使用已有复刻库名（如 Geny），也可以使用对象：
+`{"voice_id":"系统音色或已有复刻 ID","model":"qwen-audio-3.1-tts-flash","ssml_supported":true}`。
+仅在官方音色列表确认支持 SSML 后标注 true；缺少标注的显式音色只能合成纯文本。
+库内成功复刻的 Flash 音色默认可使用 SSML，不重新上传或登记。
+
+segments 支持 `ssml` 字段：完整单个 `<speak voice="...">...</speak>`，包含
+break、sub、phoneme、say-as；标签内显示文本必须与原文切片完全一致。它与 breaks
+字段互斥。sub 的 alias 用于字幕对齐，显示仍使用原文。SSML 与原文分别保存。
+必要时可添加 `readings:[{"start":0,"end":3,"reading":"实际朗读文字"}]`，偏移相对于
+该轮原文，供日期、单位等复杂展开读法校对使用，不修改合成内容或字幕原文。
+
+默认轮次间静音 300ms，`--gap-ms` 调整；segments 的 `gap_after_ms` 可覆盖某轮。
+超长轮次沿句末拆分，内部不额外加静音。无法安全拆分时明确报错，不截断。
+
+输出在 `assets/audio/<artifact_name>/versions/<指纹>/`，包含 dialogue.wav、subtitles.srt、
+subtitles.json、timeline.json。只有全部成功后更新 current.json。timeline 的采样位置为
+24kHz 整数采样数，角色和原文范围随片段保存。只改间隔不会重新付费合成。
+
+chunks 目录保留请求回执、音频哈希、识别结果和对齐缓存。字幕无法可靠匹配时生成
+review.json 并停止发布；核对 transcript.json 或修正 readings 后重跑，已完成音频会复用。
+请求失败或 request_started 状态不会自动重试，需先人工核对账单和结果，再决定如何处理
+对应回执；不要直接删除回执绕过重复付费保护。崩溃遗留的 .render.lock 需确认没有运行中的
+同目录任务后人工移除。禁止同时操作同一输出目录。
