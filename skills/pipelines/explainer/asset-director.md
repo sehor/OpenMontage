@@ -96,7 +96,7 @@ For each script section:
 
 Process asset tasks grouped by tool for efficiency:
 
-**Images (`image_selector`)**:
+**Images (`agent_native_image` / `image_selector`)**:
 1. Build the prompt from the scene's actual purpose:
    - scene-specific shot/lighting/texture cues from `shot_language`, `shot_intent`, and `texture_keywords`
    - an adapted visual anchor from the playbook or custom identity
@@ -104,8 +104,9 @@ Process asset tasks grouped by tool for efficiency:
    Use `lib/shot_prompt_builder.py` when helpful.
 2. Add negative prompt from playbook
 3. Include consistency anchors (same character/world/palette family), but do NOT reuse the exact same phrasing for every image
-4. Generate and verify the file exists
-5. If the result doesn't match expectations, refine the prompt and regenerate (max 2 retries)
+4. **CRITICAL:** Do NOT run python tools (`image_selector.py`) to generate images unless specifically requested. Use your Agent's built-in `generate_image` tool to generate the images and save them directly to disk. Cost is $0.00.
+5. Generate and verify the file exists
+6. If the result doesn't match expectations, refine the prompt and regenerate (max 2 retries)
 
 **Diagrams (`diagram_gen`)**:
 1. Convert the scene description into valid Mermaid syntax

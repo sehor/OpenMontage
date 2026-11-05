@@ -6,6 +6,29 @@ llm:
   temperature: 0.7
   max_tokens: 4096
 
+audio:
+  dashscope:
+    default_model: next
+    ssml_model: flash
+    enrollment_model: flash
+    models:
+      next:
+        model: qwen-audio-3.1-tts-next
+        protocol: audio_generation
+        sample_rate: 48000
+        channels: 2
+        max_prompt_length: 3000
+        max_references: 3
+        max_reference_seconds: 30
+        max_reference_bytes: 10485760
+      flash:
+        model: qwen-audio-3.1-tts-flash
+        protocol: tts
+        sample_rate: 24000
+        channels: 1
+        default_voice: longanhuan_v3.1
+        multi_voice_ssml: false
+
 budget:
   mode: warn                     # observe | warn | cap
   total_usd: 10.00

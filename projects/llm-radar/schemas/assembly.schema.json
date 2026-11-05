@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "asset": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "path", "sha256", "kind", "credit"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-zA-Z0-9_-]+$"},
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "kind": {"enum": ["video", "image", "music", "sfx", "font", "document"]},
+        "credit": {"type": "string", "minLength": 1}
+      }
+    },
+    "clip": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "assetId", "modelId", "modelName", "previousModelId", "in", "out", "dataVersion", "axes", "status", "renderReady", "audio", "bakedPosition", "bakedTotal"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-zA-Z0-9_-]+$"},
+        "assetId": {"type": "string"}, "modelId": {"type": "string"}, "modelName": {"type": "string"},
+        "previousModelId": {"type": ["string", "null"]},
+        "in": {"type": "number", "minimum": 0}, "out": {"type": "number", "exclusiveMinimum": 0},
+        "dataVersion": {"type": "string", "minLength": 1},
+        "scoreDataSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "axes": {"type": "array", "minItems": 6, "maxItems": 6, "uniqueItems": true, "items": {"type": "string"}},
+        "status": {"enum": ["frozen", "draft", "historical", "demo"]},
+        "renderReady": {"type": "boolean"}, "audio": {"enum": ["silent", "sfx", "mixed"]},
+        "bakedPosition": {"type": ["integer", "null"], "minimum": 1},
+        "bakedTotal": {"type": ["integer", "null"], "minimum": 1}
+      }
+    },
+    "manifest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["version", "notes", "assets", "clips"],
+      "properties": {
+        "version": {"const": 1}, "notes": {"type": "array", "items": {"type": "string"}},
+        "assets": {"type": "array", "items": {"$ref": "#/$defs/asset"}},
+        "clips": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/clip"}}
+      }
+    },
+    "episode": {
+      "type": "object", "additionalProperties": false,
+      "required": ["version", "id", "mode", "title", "subtitle", "clipIds", "introSeconds", "outroSeconds", "width", "height", "fps", "audioPolicy", "credits"],
+      "properties": {
+        "version": {"const": 1}, "id": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+        "mode": {"enum": ["preview", "production"]},
+        "title": {"type": "string", "minLength": 1, "maxLength": 26},
+        "subtitle": {"type": "string", "maxLength": 50},
+        "clipIds": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+        "introSeconds": {"type": "number", "minimum": 2, "maximum": 10},
+        "outroSeconds": {"type": "number", "minimum": 3, "maximum": 15},
+        "width": {"const": 1920}, "height": {"const": 1080},
+        "fps": {"type": "integer", "minimum": 1, "maximum": 120},
+        "audioPolicy": {"const": "preserve-embedded"},
+        "credits": {"type": "array", "maxItems": 5, "items": {"type": "string", "maxLength": 66}}
+      }
+    }
+  }
+}

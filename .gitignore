@@ -23,6 +23,18 @@ tests/qa/output/
 
 # Project workspaces (generated assets, renders — all regenerable)
 projects/
+!projects/
+projects/*
+!projects/llm-radar/
+projects/llm-radar/*
+!projects/llm-radar/PLAN.md
+!projects/llm-radar/README.md
+!projects/llm-radar/config/
+!projects/llm-radar/schemas/
+!projects/llm-radar/assembly/
+!projects/llm-radar/scripts/
+!projects/llm-radar/tests/
+projects/llm-radar/config/*.local.json
 
 # Corpus directories (downloaded stock clips, thumbnails, embeddings —
 # regenerable from source APIs via corpus_builder). Explicit rule even

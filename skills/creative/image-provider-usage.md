@@ -9,6 +9,7 @@
 
 | Tool | Provider | Cost | Speed | Best For |
 |------|----------|------|-------|----------|
+| `agent_native_image` | Native Agent Tool | Free | ~5-15s | Default! Free, uses executing agent's own image generation capabilities |
 | `flux_image` | FLUX 2 Pro via fal.ai | ~$0.03-0.05 | ~5-10s | Photorealism, general purpose, workhorse |
 | `grok_image` | Grok Imagine Image (xAI) | $0.02/output + $0.002/input edit image | ~5-15s | Image edits, style transfer, multi-image compositing |
 | `openai_image` | GPT Image 1 (OpenAI) | ~$0.01-0.17 | ~5-15s | Complex instructions, text in images, multi-element |
@@ -33,8 +34,9 @@
 
 | Scene Type | Primary Provider | Why | Fallback |
 |-----------|-----------------|-----|----------|
+| **Any standard generated image** | `agent_native_image` | Free, zero-setup, built-in | `flux_image` |
 | **Real-world photo** (city, nature, people) | `pexels_image` | Real photos > AI for realism | `pixabay_image` → `flux_image` |
-| **Technical diagram** | `diagram_gen` | Structured, editable | `flux_image` with diagram prompt |
+| **Technical diagram** | `diagram_gen` | Structured, editable | `agent_native_image` with diagram prompt |
 | **Abstract/conceptual illustration** | `flux_image` | AI excels at custom concepts | `openai_image` |
 | **Style transfer / repaint of an existing image** | `grok_image` | Native edit flow, strong promptable transforms | `openai_image` |
 | **Multi-image merge / composite** | `grok_image` | Can combine multiple source images into one scene | `openai_image` |
@@ -58,15 +60,15 @@
 
 PRODUCTION PATH: Premium
 ├── Hero images: flux_image ($0.05/img)
-├── Supporting visuals: flux_image ($0.03/img)
+├── Supporting visuals: agent_native_image ($0.00/img)
 ├── Text overlays: openai_image ($0.04/img)
 ├── B-roll stills: pexels_image ($0.00)
-└── Total for 10 images: ~$0.35
+└── Total for 10 images: ~$0.15
 
-PRODUCTION PATH: Standard
-├── All generated: flux_image ($0.03/img)
+PRODUCTION PATH: Standard (Agent Native)
+├── All generated: agent_native_image ($0.00/img)
 ├── B-roll stills: pexels_image ($0.00)
-└── Total for 10 images: ~$0.25
+└── Total for 10 images: $0.00
 
 PRODUCTION PATH: Budget
 ├── All stock: pexels_image + pixabay_image ($0.00)
@@ -83,7 +85,9 @@ Use `generation_mode="edit"` when the task starts from an existing image and sho
 
 ## Using the Image Selector
 
-For most cases, use `image_selector` and let it route:
+> **CRITICAL AGENT INSTRUCTION:** If you are an Agent executing this pipeline, **do not** run `image_selector.execute(...)` for standard image generation! Use your own built-in `generate_image` tool instead, which is free and fully native. Only use `image_selector.py` if the user specifically requests an external API (like FLUX or OpenAI).
+
+For API-based programmatic generation, use `image_selector` and let it route:
 
 ```python
 # The selector finds the best available provider

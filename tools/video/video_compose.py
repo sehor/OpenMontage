@@ -385,11 +385,17 @@ class VideoCompose(BaseTool):
 
         # Resolve target resolution from profile or default
         resolution = "1920x1080"
+        # Preserve an explicitly requested delivery frame rate during trimming,
+        # before concat. Raising 30fps back to 60fps later loses source motion.
+        target_fps = edit_decisions.get("metadata", {}).get("compose_target", {}).get("fps", 30)
+        if isinstance(target_fps, bool) or not isinstance(target_fps, int) or not 1 <= target_fps <= 120:
+            return ToolResult(success=False, error="compose_target.fps must be an integer between 1 and 120")
         if profile_name:
             try:
                 from lib.media_profiles import get_profile
                 p = get_profile(profile_name)
                 resolution = f"{p.width}x{p.height}"
+                target_fps = p.fps
             except (ImportError, ValueError):
                 pass
 
@@ -424,7 +430,9 @@ class VideoCompose(BaseTool):
                 if not source.exists():
                     return ToolResult(success=False, error=f"Cut source not found: {source}")
 
-                seg_path = temp_dir / f"seg_{i:04d}.mp4"
+                # Lossless intermediate audio avoids accumulating AAC encoder
+                # priming at concat boundaries. Encode AAC once at final mux.
+                seg_path = temp_dir / f"seg_{i:04d}.mov"
                 in_s = cut["in_seconds"]
                 out_s = cut["out_seconds"]
                 duration = out_s - in_s
@@ -470,14 +478,13 @@ class VideoCompose(BaseTool):
                     #
                     # Default target is 1920x1080 @ 30fps, yuv420p, sar=1. If the
                     # source is smaller it letterboxes; if larger it downscales.
-                    # Callers can override via edit_decisions.metadata.compose_target
-                    # (future extension) but the defaults match the most common
-                    # delivery profile (YouTube landscape).
+                    # A media profile takes precedence over an explicit
+                    # edit_decisions.metadata.compose_target.fps override.
                     vf_parts: list[str] = [
                         "scale=1920:1080:force_original_aspect_ratio=decrease",
                         "pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=black",
                         "setsar=1",
-                        "fps=30",
+                        f"fps={target_fps}",
                     ]
                     af_parts: list[str] = []
                     if speed != 1.0:
@@ -493,7 +500,7 @@ class VideoCompose(BaseTool):
                         "-crf", str(crf),
                         "-preset", preset,
                         "-pix_fmt", "yuv420p",
-                        "-r", "30",
+                        "-r", str(target_fps),
                     ])
 
                     # Audio handling: some source clips have no audio stream
@@ -504,7 +511,7 @@ class VideoCompose(BaseTool):
                     # concat segments have a consistent stream layout.
                     has_audio = self._has_audio_stream(source)
                     if has_audio:
-                        cmd.extend(["-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2"])
+                        cmd.extend(["-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2"])
                     else:
                         # Inject silent audio via lavfi before the output.
                         # We have to rebuild cmd to add the lavfi input
@@ -528,9 +535,8 @@ class VideoCompose(BaseTool):
                             "-crf", str(crf),
                             "-preset", preset,
                             "-pix_fmt", "yuv420p",
-                            "-r", "30",
-                            "-c:a", "aac",
-                            "-b:a", "192k",
+                            "-r", str(target_fps),
+                            "-c:a", "pcm_s16le",
                             "-ar", "48000",
                             "-ac", "2",
                         ])
@@ -547,7 +553,7 @@ class VideoCompose(BaseTool):
                     safe = str(seg.resolve()).replace("\\", "/")
                     f.write(f"file '{safe}'\n")
 
-            concat_out = temp_dir / "concat.mp4"
+            concat_out = temp_dir / "concat.mov"
             cmd = [
                 "ffmpeg", "-y",
                 "-f", "concat", "-safe", "0",
@@ -600,7 +606,7 @@ class VideoCompose(BaseTool):
                 # and video as stream 1 (e.g. Kling-generated clips).
                 cmd.extend(["-map", "0:v", "-map", "1:a", "-c:a", "aac", "-shortest"])
             else:
-                cmd.extend(["-c:a", "copy"])
+                cmd.extend(["-c:a", "aac", "-b:a", "192k"])
 
             cmd.append(str(output_path))
             self.run_command(cmd)

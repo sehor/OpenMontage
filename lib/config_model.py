@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from enum import Enum
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional
 
 import yaml
 from pydantic import BaseModel, Field
@@ -62,10 +62,35 @@ class PathsConfig(BaseModel):
     output_dir: str = "output"
 
 
+class SpeechModelConfig(BaseModel):
+    model: str = Field(min_length=1)
+    protocol: Literal["tts", "audio_generation"]
+    sample_rate: int = 24000
+    channels: int = 1
+    default_voice: Optional[str] = None
+    multi_voice_ssml: bool = False
+    max_prompt_length: int = 3000
+    max_references: int = 3
+    max_reference_seconds: float = 30
+    max_reference_bytes: int = 10485760
+
+
+class DashScopeAudioConfig(BaseModel):
+    default_model: Optional[str] = None
+    ssml_model: Optional[str] = None
+    enrollment_model: Optional[str] = None
+    models: dict[str, SpeechModelConfig] = Field(default_factory=dict)
+
+
+class AudioConfig(BaseModel):
+    dashscope: DashScopeAudioConfig = Field(default_factory=DashScopeAudioConfig)
+
+
 class OpenMontageConfig(BaseModel):
     """Top-level runtime configuration."""
 
     llm: LLMConfig = Field(default_factory=LLMConfig)
+    audio: AudioConfig = Field(default_factory=AudioConfig)
     budget: BudgetConfig = Field(default_factory=BudgetConfig)
     checkpoint: CheckpointConfig = Field(default_factory=CheckpointConfig)
     output: OutputConfig = Field(default_factory=OutputConfig)
@@ -78,7 +103,7 @@ class OpenMontageConfig(BaseModel):
             config_path = Path(__file__).resolve().parent.parent / "config.yaml"
 
         if config_path.exists():
-            with open(config_path) as f:
+            with open(config_path, encoding="utf-8") as f:
                 raw = yaml.safe_load(f) or {}
             return cls.model_validate(raw)
 

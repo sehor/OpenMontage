@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "id": "three-model-preview",
+  "mode": "preview",
+  "title": "LLM RADAR",
+  "subtitle": "三模型观察 · 历史素材组装测试",
+  "clipIds": ["astra", "claude", "deepseek"],
+  "introSeconds": 3.5,
+  "outroSeconds": 5.5,
+  "width": 1920,
+  "height": 1080,
+  "fps": 60,
+  "audioPolicy": "preserve-embedded",
+  "credits": [
+    "动画、模型画面与素材管理：LLM Radar",
+    "片头片尾、剪辑与成片：OpenMontage",
+    "原片保留历史维度与数值，仅验证组装，不代表最新评测。",
+    "音乐：《将军令》北管版 · 彰化梨春园 / 彰化县文化局 / 国家文化记忆库",
+    "上游署名：CC BY 3.0 TW+ · 音频节选、转码 · 本片沿用原音轨"
+  ]
+}

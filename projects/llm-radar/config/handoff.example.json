@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "notes": [
+    "Visual inspection: archived video uses speed/value axes, not current axes-v2. Preview only.",
+    "Three contiguous six-second sections. Embedded original music and effects preserved.",
+    "Music source stated by upstream: https://tcmb.culture.tw/zh-tw/detail?id=697702&indexCode=Culture_Media ; CC BY 3.0 TW+; upstream excerpt/transcode attribution retained."
+  ],
+  "assets": [
+    {
+      "id": "three-model-source",
+      "path": "out/three-model-six-axis-final.mp4",
+      "sha256": "bb5ff217984052c005dbc03015d9f4b01af78fd42e7d36c85dbf5a0aef835883",
+      "kind": "video",
+      "credit": "LLM Radar supplied video. Music: 将军令 北管版 / 彰化梨春园 / 彰化县文化局 / 国家文化记忆库; CC BY 3.0 TW+ per upstream docs; original attribution retained."
+    }
+  ],
+  "clips": [
+    {
+      "id": "astra",
+      "assetId": "three-model-source",
+      "modelId": "gpt-6-astra",
+      "modelName": "GPT-6 Astra",
+      "previousModelId": null,
+      "in": 0,
+      "out": 6,
+      "dataVersion": "historical-render-2026-09-14-speed-value",
+      "axes": [
+        "agentic",
+        "coding",
+        "reasoning",
+        "multimodal",
+        "speed",
+        "value"
+      ],
+      "status": "historical",
+      "renderReady": false,
+      "audio": "mixed",
+      "bakedPosition": 1,
+      "bakedTotal": 3
+    },
+    {
+      "id": "claude",
+      "assetId": "three-model-source",
+      "modelId": "claude-fable-5.1",
+      "modelName": "Claude Fable 5.1",
+      "previousModelId": "gpt-6-astra",
+      "in": 6,
+      "out": 12,
+      "dataVersion": "historical-render-2026-09-14-speed-value",
+      "axes": [
+        "agentic",
+        "coding",
+        "reasoning",
+        "multimodal",
+        "speed",
+        "value"
+      ],
+      "status": "historical",
+      "renderReady": false,
+      "audio": "mixed",
+      "bakedPosition": 2,
+      "bakedTotal": 3
+    },
+    {
+      "id": "deepseek",
+      "assetId": "three-model-source",
+      "modelId": "deepseek-v4.1-flash",
+      "modelName": "DeepSeek V4.1 Flash",
+      "previousModelId": "claude-fable-5.1",
+      "in": 12,
+      "out": 18,
+      "dataVersion": "historical-render-2026-09-14-speed-value",
+      "axes": [
+        "agentic",
+        "coding",
+        "reasoning",
+        "multimodal",
+        "speed",
+        "value"
+      ],
+      "status": "historical",
+      "renderReady": false,
+      "audio": "mixed",
+      "bakedPosition": 3,
+      "bakedTotal": 3
+    }
+  ]
+}

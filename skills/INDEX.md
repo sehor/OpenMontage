@@ -76,6 +76,10 @@ Key capability families to look for in the output:
 
 ## Core Skills
 
+Mixed-role manuscripts: read [core/dashscope-dialogue.md](core/dashscope-dialogue.md)
+for reference-conditioned dialogue and configured model selection. Explicit legacy
+SSML uses [core/dashscope-ssml.md](core/dashscope-ssml.md).
+
 | Skill | File | Trigger | Agent Skills (Layer 3) |
 |-------|------|---------|----------------------|
 | FFmpeg | `core/ffmpeg.md` | Video encoding, filtering, composition | `ffmpeg`, `video_toolkit` |
