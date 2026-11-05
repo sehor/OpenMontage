@@ -89,9 +89,10 @@ uv --cache-dir .cache/uv run --no-project --python .venv/Scripts/python.exe pyth
 ```
 
 先检查编译产物，再加 `--synthesize` 生成音频、句级字幕与时间轴。此模式通过注册工具
-`dashscope_dialogue_render` 执行，底层调用 `dashscope_tts`、`transcriber`、`subtitle_gen`。
-使用 `uv pip install --python .venv/Scripts/python.exe -r requirements-audio.txt` 安装本地识别依赖。
-首次识别需要下载 Whisper 模型；默认 `small`，可通过 `--subtitle-model` 修改。
+`dashscope_dialogue_render` 执行，底层逐角色调用 `dashscope_tts` 流式合成，开启
+`word_timestamp_enabled`，使用返回的文本与毫秒时间生成字幕，再由 `subtitle_gen` 输出。
+新音频无需 Whisper。时间以单次请求音频起点为零；全局偏移来自已拼接音频的整数采样数。
+读取 [Flash 时间戳说明](../../docs/dashscope-flash-timestamps.md) 了解实测返回结构和限制。
 
 roles.json 中可以直接使用已有复刻库名（如 Geny），也可以使用对象：
 `{"voice_id":"系统音色或已有复刻 ID","model":"qwen-audio-3.1-tts-flash","ssml_supported":true}`。
@@ -100,9 +101,8 @@ roles.json 中可以直接使用已有复刻库名（如 Geny），也可以使�
 
 segments 支持 `ssml` 字段：完整单个 `<speak voice="...">...</speak>`，包含
 break、sub、phoneme、say-as；标签内显示文本必须与原文切片完全一致。它与 breaks
-字段互斥。sub 的 alias 用于字幕对齐，显示仍使用原文。SSML 与原文分别保存。
-必要时可添加 `readings:[{"start":0,"end":3,"reading":"实际朗读文字"}]`，偏移相对于
-该轮原文，供日期、单位等复杂展开读法校对使用，不修改合成内容或字幕原文。
+字段互斥。sub 的 alias 用于合成读音。SSML 与原文分别保存；字幕直接使用返回的
+original_text，不再用 readings 或 reading_map 做原稿对应。
 
 默认轮次间静音 300ms，`--gap-ms` 调整；segments 的 `gap_after_ms` 可覆盖某轮。
 超长轮次沿句末拆分，内部不额外加静音。无法安全拆分时明确报错，不截断。
@@ -111,8 +111,14 @@ break、sub、phoneme、say-as；标签内显示文本必须与原文切片完�
 subtitles.json、timeline.json。只有全部成功后更新 current.json。timeline 的采样位置为
 24kHz 整数采样数，角色和原文范围随片段保存。只改间隔不会重新付费合成。
 
-chunks 目录保留请求回执、音频哈希、识别结果和对齐缓存。字幕无法可靠匹配时生成
-review.json 并停止发布；核对 transcript.json 或修正 readings 后重跑，已完成音频会复用。
+chunks 目录保留请求回执、音频哈希、原始 SSE 事件、时间戳和字幕缓存。重复或累积词表只取
+sentence-end 的最终快照。每个服务端分句用 original_text 和真实首末词时间生成一条字幕。
+未返回 original_text 时使用该句 words.text 并在 JSON 标记 text_source=words。
+字幕不与原稿或读音做匹配；缺失或无效时间戳生成 review.json，停止发布。
+
+字幕只接受合成时返回的时间戳。缺失或无效时生成 needs_review 并停止。
+旧非流式音频和识别缓存不用于本流程；保留旧文件只为核对历史请求，避免自动重复付费。
+再次合成应使用明确的新输出目录并先确认范围；原目录遇到旧音频会在任何新请求前停止。
 请求失败或 request_started 状态不会自动重试，需先人工核对账单和结果，再决定如何处理
 对应回执；不要直接删除回执绕过重复付费保护。崩溃遗留的 .render.lock 需确认没有运行中的
 同目录任务后人工移除。禁止同时操作同一输出目录。

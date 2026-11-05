@@ -1,4 +1,4 @@
-"""Configured Aliyun speech/audio-generation protocols over non-streaming HTTP."""
+"""Configured Aliyun speech protocols, including durable timestamped SSE."""
 
 from __future__ import annotations
 
@@ -40,16 +40,17 @@ class DashScopeTTS(BaseTool):
     )
     fallback_tools = []
     agent_skills = ["qwen-tts"]
-    capabilities = ["text_to_speech", "voice_selection", "multilingual", "instruction_control", "ssml", "reference_audio", "multi_speaker"]
+    capabilities = ["text_to_speech", "voice_selection", "multilingual", "instruction_control", "ssml", "reference_audio", "multi_speaker", "streaming", "word_timestamps"]
     supports = {
         "voice_cloning": False, "multilingual": True, "offline": False,
-        "native_audio": True, "timestamps": False, "long_text_async": False,
+        "native_audio": True, "timestamps": True, "long_text_async": False,
+        "streaming": True,
         "non_streaming": True, "instruction_control": True, "ssml": True,
         "multi_voice_ssml": False,
         "reference_audio": True, "multi_speaker": True,
     }
     best_for = ["Reference-conditioned multi-speaker dialogue", "Configured speech synthesis"]
-    not_good_for = ["offline generation", "real-time conversations", "word-level alignment"]
+    not_good_for = ["offline generation", "real-time conversations"]
     input_schema = {
         "type": "object", "anyOf": [{"required": ["text"]}, {"required": ["text_prompt"]}],
         "properties": {
@@ -63,6 +64,8 @@ class DashScopeTTS(BaseTool):
             "format": {"type": "string", "enum": ["wav", "mp3", "pcm", "opus"], "default": "wav"},
             "sample_rate": {"type": "integer", "enum": [8000, 12000, 16000, 22050, 24000, 44100, 48000]},
             "instruction": {"type": "string"},
+            "streaming": {"type": "boolean", "default": False},
+            "word_timestamp_enabled": {"type": "boolean", "default": False},
             "enable_ssml": {"type": "boolean", "default": False},
             "ssml_voice_models": {"type": "object", "additionalProperties": {"type": "string"}},
             "rate": {"type": "number", "minimum": 0.5, "maximum": 2.0},
@@ -75,7 +78,7 @@ class DashScopeTTS(BaseTool):
     resource_profile = ResourceProfile(cpu_cores=1, ram_mb=256, disk_mb=100, network_required=True)
     # A timeout may have generated billable audio; let the caller decide to retry.
     retry_policy = RetryPolicy(max_retries=0)
-    idempotency_key_fields = ["text", "text_prompt", "reference_paths", "channels", "model", "model_id", "voice_id", "format", "sample_rate", "instruction", "rate", "pitch", "volume", "enable_ssml", "ssml_voice_models"]
+    idempotency_key_fields = ["text", "text_prompt", "reference_paths", "channels", "model", "model_id", "voice_id", "format", "sample_rate", "instruction", "rate", "pitch", "volume", "enable_ssml", "ssml_voice_models", "streaming", "word_timestamp_enabled"]
     side_effects = ["calls Aliyun paid speech API", "writes audio file to output_path"]
     user_visible_verification = ["Listen to the generated sample for pronunciation and delivery"]
 
@@ -130,6 +133,11 @@ class DashScopeTTS(BaseTool):
                 raise ValueError("model and model_id disagree")
             profile = speech_model(inputs.get("model", inputs.get("model_id")))
             model = profile.model
+            streaming = inputs.get("streaming", False)
+            if (streaming or inputs.get("word_timestamp_enabled")) and profile.protocol != "tts":
+                raise ValueError("SSE word timestamps are only available for the TTS protocol; Next is unchanged")
+            if inputs.get("word_timestamp_enabled") and not streaming:
+                raise ValueError("word_timestamp_enabled requires streaming=true")
             endpoint = self._endpoint()
             fmt = inputs.get("format", "wav")
             sample_rate = inputs.get("sample_rate", profile.sample_rate)
@@ -170,6 +178,19 @@ class DashScopeTTS(BaseTool):
                 if field in inputs:
                     speech[field] = inputs[field]
             timeout = (10, inputs.get("timeout_seconds", 300 if profile.protocol == "audio_generation" else 120))
+            if streaming:
+                from lib.dashscope_stream import capture_stream
+                speech["word_timestamp_enabled"] = inputs.get("word_timestamp_enabled", False)
+                capture_stream(endpoint, key, model, speech, output, timeout, provider_data)
+                from tools.analysis.audio_probe import probe_duration
+                provider_data.update(provider=self.provider, model=model, voice_id=voice,
+                                     format=fmt, sample_rate=sample_rate, output=str(output), protocol=profile.protocol,
+                                     audio_duration_seconds=probe_duration(output) if fmt != "pcm" else None,
+                                     cost_status="See Aliyun bill; no automatic retries")
+                return ToolResult(success=True, model=model, artifacts=[str(output),
+                                  provider_data["stream_receipt"], provider_data["raw_events_path"],
+                                  provider_data["timestamps_path"]], data=provider_data,
+                                  duration_seconds=round(time.monotonic() - start, 2))
             with requests.post(endpoint, headers={"Authorization": f"Bearer {key}"},
                                json={"model": model, "input": speech}, timeout=timeout,
                                allow_redirects=False) as response:

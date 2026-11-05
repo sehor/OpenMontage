@@ -1,0 +1,594 @@
+{
+  "recorded_on": "2026-11-05",
+  "model": "qwen-audio-3.1-tts-flash",
+  "samples": [
+    {
+      "chunk": {
+        "text": "AI需要睡眠。W3C有123项。重庆，你好。",
+        "reading_map": [
+          {
+            "start": 0,
+            "end": 1,
+            "display": "A",
+            "reading": "A"
+          },
+          {
+            "start": 1,
+            "end": 2,
+            "display": "I",
+            "reading": "I"
+          },
+          {
+            "start": 2,
+            "end": 3,
+            "display": "需",
+            "reading": "需"
+          },
+          {
+            "start": 3,
+            "end": 4,
+            "display": "要",
+            "reading": "要"
+          },
+          {
+            "start": 4,
+            "end": 5,
+            "display": "睡",
+            "reading": "睡"
+          },
+          {
+            "start": 5,
+            "end": 6,
+            "display": "眠",
+            "reading": "眠"
+          },
+          {
+            "start": 6,
+            "end": 7,
+            "display": "。",
+            "reading": "。"
+          },
+          {
+            "start": 7,
+            "end": 10,
+            "display": "W3C",
+            "reading": "网络标准",
+            "ssml_tag": "sub"
+          },
+          {
+            "start": 10,
+            "end": 11,
+            "display": "有",
+            "reading": "有"
+          },
+          {
+            "start": 11,
+            "end": 14,
+            "display": "123",
+            "reading": "123",
+            "ssml_tag": "say-as"
+          },
+          {
+            "start": 14,
+            "end": 15,
+            "display": "项",
+            "reading": "项"
+          },
+          {
+            "start": 15,
+            "end": 16,
+            "display": "。",
+            "reading": "。"
+          },
+          {
+            "start": 16,
+            "end": 18,
+            "display": "重庆",
+            "reading": "重庆",
+            "ssml_tag": "phoneme"
+          },
+          {
+            "start": 18,
+            "end": 19,
+            "display": "，",
+            "reading": "，"
+          },
+          {
+            "start": 19,
+            "end": 20,
+            "display": "你",
+            "reading": "你"
+          },
+          {
+            "start": 20,
+            "end": 21,
+            "display": "好",
+            "reading": "好"
+          },
+          {
+            "start": 21,
+            "end": 22,
+            "display": "。",
+            "reading": "。"
+          }
+        ],
+        "role": "主播"
+      },
+      "duration": 6.34,
+      "capture": {
+        "schema_version": 1,
+        "time_base": "request",
+        "unit": "milliseconds",
+        "sentences": [
+          {
+            "type": "sentence-end",
+            "original_text": "AI需要睡眠。W3C有123项。",
+            "sentence": {
+              "words": [
+                {
+                  "end_time": 640,
+                  "begin_time": 320,
+                  "end_index": 1,
+                  "begin_index": 0,
+                  "text": "A"
+                },
+                {
+                  "end_time": 960,
+                  "begin_time": 640,
+                  "end_index": 2,
+                  "begin_index": 1,
+                  "text": " I"
+                },
+                {
+                  "end_time": 1200,
+                  "begin_time": 960,
+                  "end_index": 3,
+                  "begin_index": 2,
+                  "text": "需"
+                },
+                {
+                  "end_time": 1280,
+                  "begin_time": 1200,
+                  "end_index": 4,
+                  "begin_index": 3,
+                  "text": "要"
+                },
+                {
+                  "end_time": 1520,
+                  "begin_time": 1280,
+                  "end_index": 5,
+                  "begin_index": 4,
+                  "text": "睡"
+                },
+                {
+                  "end_time": 1760,
+                  "begin_time": 1520,
+                  "end_index": 6,
+                  "begin_index": 5,
+                  "text": "眠"
+                },
+                {
+                  "end_time": 2400,
+                  "begin_time": 2240,
+                  "end_index": 7,
+                  "begin_index": 6,
+                  "text": "。网"
+                },
+                {
+                  "end_time": 2560,
+                  "begin_time": 2400,
+                  "end_index": 8,
+                  "begin_index": 7,
+                  "text": "络"
+                },
+                {
+                  "end_time": 2720,
+                  "begin_time": 2560,
+                  "end_index": 9,
+                  "begin_index": 8,
+                  "text": "标"
+                },
+                {
+                  "end_time": 2960,
+                  "begin_time": 2720,
+                  "end_index": 10,
+                  "begin_index": 9,
+                  "text": "准"
+                },
+                {
+                  "end_time": 3120,
+                  "begin_time": 2960,
+                  "end_index": 11,
+                  "begin_index": 10,
+                  "text": "有"
+                },
+                {
+                  "end_time": 3200,
+                  "begin_time": 3120,
+                  "end_index": 12,
+                  "begin_index": 11,
+                  "text": "一"
+                },
+                {
+                  "end_time": 3360,
+                  "begin_time": 3200,
+                  "end_index": 13,
+                  "begin_index": 12,
+                  "text": "百"
+                },
+                {
+                  "end_time": 3520,
+                  "begin_time": 3360,
+                  "end_index": 14,
+                  "begin_index": 13,
+                  "text": "二"
+                },
+                {
+                  "end_time": 3600,
+                  "begin_time": 3520,
+                  "end_index": 15,
+                  "begin_index": 14,
+                  "text": "十"
+                },
+                {
+                  "end_time": 3760,
+                  "begin_time": 3600,
+                  "end_index": 16,
+                  "begin_index": 15,
+                  "text": "三"
+                },
+                {
+                  "end_time": 4000,
+                  "begin_time": 3760,
+                  "end_index": 17,
+                  "begin_index": 16,
+                  "text": "项。"
+                }
+              ],
+              "index": 0
+            }
+          },
+          {
+            "type": "sentence-end",
+            "original_text": "重庆，你好。",
+            "sentence": {
+              "words": [
+                {
+                  "end_time": 4940,
+                  "begin_time": 4660,
+                  "end_index": 18,
+                  "begin_index": 17,
+                  "text": "[ch]"
+                },
+                {
+                  "end_time": 5220,
+                  "begin_time": 4940,
+                  "end_index": 19,
+                  "begin_index": 18,
+                  "text": "[�ng]"
+                },
+                {
+                  "end_time": 5500,
+                  "begin_time": 5220,
+                  "end_index": 20,
+                  "begin_index": 19,
+                  "text": "[q]"
+                },
+                {
+                  "end_time": 5780,
+                  "begin_time": 5500,
+                  "end_index": 21,
+                  "begin_index": 20,
+                  "text": "[�ng]"
+                },
+                {
+                  "end_time": 6060,
+                  "begin_time": 5780,
+                  "end_index": 22,
+                  "begin_index": 21,
+                  "text": "，你"
+                },
+                {
+                  "end_time": 6340,
+                  "begin_time": 6060,
+                  "end_index": 23,
+                  "begin_index": 22,
+                  "text": "好。"
+                }
+              ],
+              "index": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "chunk": {
+        "text": "今天是2026年。API测试。休息后，再学习。",
+        "reading_map": [
+          {
+            "start": 0,
+            "end": 1,
+            "display": "今",
+            "reading": "今"
+          },
+          {
+            "start": 1,
+            "end": 2,
+            "display": "天",
+            "reading": "天"
+          },
+          {
+            "start": 2,
+            "end": 3,
+            "display": "是",
+            "reading": "是"
+          },
+          {
+            "start": 3,
+            "end": 7,
+            "display": "2026",
+            "reading": "2026",
+            "ssml_tag": "say-as"
+          },
+          {
+            "start": 7,
+            "end": 8,
+            "display": "年",
+            "reading": "年"
+          },
+          {
+            "start": 8,
+            "end": 9,
+            "display": "。",
+            "reading": "。"
+          },
+          {
+            "start": 9,
+            "end": 10,
+            "display": "A",
+            "reading": "A"
+          },
+          {
+            "start": 10,
+            "end": 11,
+            "display": "P",
+            "reading": "P"
+          },
+          {
+            "start": 11,
+            "end": 12,
+            "display": "I",
+            "reading": "I"
+          },
+          {
+            "start": 12,
+            "end": 13,
+            "display": "测",
+            "reading": "测"
+          },
+          {
+            "start": 13,
+            "end": 14,
+            "display": "试",
+            "reading": "试"
+          },
+          {
+            "start": 14,
+            "end": 15,
+            "display": "。",
+            "reading": "。"
+          },
+          {
+            "start": 15,
+            "end": 16,
+            "display": "休",
+            "reading": "休"
+          },
+          {
+            "start": 16,
+            "end": 17,
+            "display": "息",
+            "reading": "息"
+          },
+          {
+            "start": 17,
+            "end": 18,
+            "display": "后",
+            "reading": "后"
+          },
+          {
+            "start": 18,
+            "end": 19,
+            "display": "，",
+            "reading": "，"
+          },
+          {
+            "start": 19,
+            "end": 20,
+            "display": "再",
+            "reading": "再"
+          },
+          {
+            "start": 20,
+            "end": 21,
+            "display": "学",
+            "reading": "学"
+          },
+          {
+            "start": 21,
+            "end": 22,
+            "display": "习",
+            "reading": "习"
+          },
+          {
+            "start": 22,
+            "end": 23,
+            "display": "。",
+            "reading": "。"
+          }
+        ],
+        "role": "副播"
+      },
+      "duration": 4.3,
+      "capture": {
+        "schema_version": 1,
+        "time_base": "request",
+        "unit": "milliseconds",
+        "sentences": [
+          {
+            "type": "sentence-end",
+            "original_text": "今天是2026年。API测试。",
+            "sentence": {
+              "words": [
+                {
+                  "end_time": 480,
+                  "begin_time": 240,
+                  "end_index": 1,
+                  "begin_index": 0,
+                  "text": "今"
+                },
+                {
+                  "end_time": 640,
+                  "begin_time": 480,
+                  "end_index": 2,
+                  "begin_index": 1,
+                  "text": "天"
+                },
+                {
+                  "end_time": 800,
+                  "begin_time": 640,
+                  "end_index": 3,
+                  "begin_index": 2,
+                  "text": "是"
+                },
+                {
+                  "end_time": 960,
+                  "begin_time": 800,
+                  "end_index": 4,
+                  "begin_index": 3,
+                  "text": "二"
+                },
+                {
+                  "end_time": 1120,
+                  "begin_time": 960,
+                  "end_index": 5,
+                  "begin_index": 4,
+                  "text": "零"
+                },
+                {
+                  "end_time": 1280,
+                  "begin_time": 1120,
+                  "end_index": 6,
+                  "begin_index": 5,
+                  "text": "二"
+                },
+                {
+                  "end_time": 1440,
+                  "begin_time": 1280,
+                  "end_index": 7,
+                  "begin_index": 6,
+                  "text": "六"
+                },
+                {
+                  "end_time": 1600,
+                  "begin_time": 1440,
+                  "end_index": 8,
+                  "begin_index": 7,
+                  "text": "年"
+                },
+                {
+                  "end_time": 1760,
+                  "begin_time": 1600,
+                  "end_index": 9,
+                  "begin_index": 8,
+                  "text": "。A"
+                },
+                {
+                  "end_time": 1920,
+                  "begin_time": 1760,
+                  "end_index": 10,
+                  "begin_index": 9,
+                  "text": " P"
+                },
+                {
+                  "end_time": 2080,
+                  "begin_time": 1920,
+                  "end_index": 11,
+                  "begin_index": 10,
+                  "text": " I"
+                },
+                {
+                  "end_time": 2240,
+                  "begin_time": 2080,
+                  "end_index": 12,
+                  "begin_index": 11,
+                  "text": "测"
+                },
+                {
+                  "end_time": 2480,
+                  "begin_time": 2240,
+                  "end_index": 13,
+                  "begin_index": 12,
+                  "text": "试。"
+                }
+              ],
+              "index": 0
+            }
+          },
+          {
+            "type": "sentence-end",
+            "original_text": "休息后，再学习。",
+            "sentence": {
+              "words": [
+                {
+                  "end_time": 3340,
+                  "begin_time": 3100,
+                  "end_index": 14,
+                  "begin_index": 13,
+                  "text": "休"
+                },
+                {
+                  "end_time": 3500,
+                  "begin_time": 3340,
+                  "end_index": 15,
+                  "begin_index": 14,
+                  "text": "息"
+                },
+                {
+                  "end_time": 3660,
+                  "begin_time": 3500,
+                  "end_index": 16,
+                  "begin_index": 15,
+                  "text": "后"
+                },
+                {
+                  "end_time": 3820,
+                  "begin_time": 3740,
+                  "end_index": 17,
+                  "begin_index": 16,
+                  "text": "，再"
+                },
+                {
+                  "end_time": 4060,
+                  "begin_time": 3820,
+                  "end_index": 18,
+                  "begin_index": 17,
+                  "text": "学"
+                },
+                {
+                  "end_time": 4220,
+                  "begin_time": 4060,
+                  "end_index": 19,
+                  "begin_index": 18,
+                  "text": "习。"
+                }
+              ],
+              "index": 1
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

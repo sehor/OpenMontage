@@ -9,21 +9,20 @@ from lib.dashscope_ssml import compile_ssml, validate_ssml
 
 def units(speak):
     """Atomic markup units; never split pronunciation elements."""
-    result = [(c, c, c) for c in speak.text or ""]
+    result = [(c, c) for c in speak.text or ""]
     for child in speak:
         node = deepcopy(child)
         node.tail = None
         display = child.text or ""
-        reading = child.get("alias", display)
-        result.append((ET.tostring(node, encoding="unicode"), display, reading))
-        result.extend((c, c, c) for c in child.tail or "")
+        result.append((ET.tostring(node, encoding="unicode"), display))
+        result.extend((c, c) for c in child.tail or "")
     return result
 
 
 def render(items, attrs):
     from xml.sax.saxutils import escape, quoteattr
     body = "".join(markup if markup.startswith("<") and len(markup) > 1 else escape(markup)
-                   for markup, _, _ in items)
+                   for markup, _ in items)
     return ("<speak " + " ".join(f"{k}={quoteattr(v)}" for k, v in attrs.items()) + ">" + body + "</speak>").replace("\r", "&#13;")
 
 
@@ -41,11 +40,6 @@ def compile_flash(source, roles, segments, source_format, model, library):
         if gap is not None:
             from lib.dashscope_ssml import number
             number(gap, 0, 10000, "gap_after_ms")
-        reading_end = 0
-        for override in segment.get("readings", []):
-            if override["start"] < reading_end:
-                raise ValueError("Reading overrides must be ordered and nonoverlapping")
-            reading_end = override["end"]
         voice = compiled["roles"][segment["role"]]
         annotated = any(k in segment for k in ("ssml", "breaks", "rate", "pitch", "volume"))
         use_ssml = voice.get("ssml_supported") is True
@@ -82,29 +76,8 @@ def compile_flash(source, roles, segments, source_format, model, library):
             instruction = "；".join(segment[k] for k in ("direction", "emotion") if segment.get(k))
             if instruction:
                 synthesis["instruction"] = instruction
-            mapping, local = [], 0
-            for _, display, reading in batch:
-                if display:
-                    mapping.append({"start": local, "end": local + len(display), "display": display,
-                                    "reading": reading})
-                    local += len(display)
-            # Reviewed pronunciation overrides handle expanded numeric/date readings.
-            for override in segment.get("readings", []):
-                a, b = override["start"], override["end"]
-                if not isinstance(a, int) or not isinstance(b, int) or not 0 <= a < b <= len(segment["text"]):
-                    raise ValueError("Invalid reading override span")
-                a, b = a + segment["start"] - offset, b + segment["start"] - offset
-                if b <= 0 or a >= len(text):
-                    continue
-                if a < 0 or b > len(text) or not override["reading"].strip():
-                    raise ValueError("Reading override crosses a chunk boundary")
-                if any(x["start"] < a < x["end"] or x["start"] < b < x["end"] for x in mapping):
-                    raise ValueError("Reading override splits an atomic pronunciation tag")
-                mapping = [x for x in mapping if x["end"] <= a or x["start"] >= b] + [
-                    {"start": a, "end": b, "display": text[a:b], "reading": override["reading"]}]
-                mapping.sort(key=lambda x: x["start"])
             chunks.append({"turn": turn, "role": segment["role"], "start": offset, "end": offset + len(text),
-                           "text": text, "reading_map": mapping, "synthesis_inputs": synthesis,
+                           "text": text, "synthesis_inputs": synthesis,
                            "gap_after_ms": segment.get("gap_after_ms")})
             offset += len(text)
     return {**compiled, "protocol": "tts", "mode": "segmented", "chunks": chunks,
