@@ -10,7 +10,7 @@ This is the last technical stage before the video exists as a playable file. Eve
 
 Read `edit_decisions.render_runtime` before anything else. It was locked at proposal and must not be changed silently. The rest of this skill's process steps (Remotion public/ staging, word-level caption burn, etc.) assume `render_runtime="remotion"` — the default for data-driven explainers.
 
-- **`render_runtime="hyperframes"`** — HTML/CSS/GSAP render. Do NOT follow the Remotion-specific steps below. Instead: read `skills/core/hyperframes.md`, `.agents/skills/hyperframes/SKILL.md`, and `.agents/skills/hyperframes-cli/SKILL.md`. Call `video_compose` with the edit_decisions unchanged — it will delegate to `hyperframes_compose`, which materializes a workspace under `projects/<name>/hyperframes/`, runs `lint → validate → render`, and returns the MP4. Both lint AND validate must pass before render; contrast can be deferred during iteration but not for final delivery.
+- **`render_runtime="hyperframes"`** — HTML/CSS/GSAP render. Do NOT follow the Remotion-specific steps below. Instead: read `skills/core/hyperframes.md`, `.agents/skills/hyperframes/SKILL.md`, and `.agents/skills/hyperframes-cli/SKILL.md`. Call `video_compose` with the edit_decisions unchanged — it will delegate to `hyperframes_compose`, which materializes a workspace under `workspaces/<name>/hyperframes/`, runs `lint → validate → render`, and returns the MP4. Both lint AND validate must pass before render; contrast can be deferred during iteration but not for final delivery.
 - **`render_runtime="ffmpeg"`** — simple concat/trim. Call `video_compose` directly; it will NOT auto-upgrade to Remotion when this runtime is explicitly locked.
 - **Runtime unavailable** — surface the blocker per AGENT_GUIDE.md > "Escalate Blockers Explicitly" and get user approval (recorded as a `render_runtime_selection` decision in decision_log) before switching.
 
@@ -219,10 +219,10 @@ Subtitles are mandatory for all explainer content. Generate them from the narrat
    ```python
    from tools.analysis.transcriber import Transcriber
    result = Transcriber().execute({
-       'input_path': 'projects/<project>/assets/audio/narration_full.mp3',
+       'input_path': 'video_projects/<project>/assets/audio/narration_full.mp3',
        'model_size': 'base',
        'language': 'en',
-       'output_dir': 'projects/<project>/assets/audio'
+       'output_dir': 'video_projects/<project>/assets/audio'
    })
    # result.data contains segments with word-level timestamps
    ```
@@ -263,7 +263,7 @@ If Remotion is not available, fall back to SRT generation + FFmpeg burn:
    SubtitleGen().execute({
        'segments': transcription_data['segments'],
        'format': 'srt',
-       'output_path': 'projects/<project>/assets/subtitles.srt',
+       'output_path': 'video_projects/<project>/assets/subtitles.srt',
        'max_words_per_cue': 8,
        'max_chars_per_line': 42
    })

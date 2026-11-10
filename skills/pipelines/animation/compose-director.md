@@ -11,7 +11,7 @@ Before any other work, read `edit_decisions.render_runtime`. It was locked at pr
 - **`render_runtime="hyperframes"`** — HTML/CSS/GSAP render. Do NOT follow the Remotion-specific sections below (public/ staging, Remotion composition JSON). Instead:
   1. Read `skills/core/hyperframes.md` for the full routing model.
   2. Read `.agents/skills/hyperframes/SKILL.md` and `.agents/skills/hyperframes-cli/SKILL.md` for authoring contract and CLI usage.
-  3. Call `video_compose` with `edit_decisions.render_runtime="hyperframes"` — it delegates to `hyperframes_compose`, which owns workspace materialization under `projects/<name>/hyperframes/`, runs `hyperframes lint → validate → render`, and returns the MP4 path.
+  3. Call `video_compose` with `edit_decisions.render_runtime="hyperframes"` — it delegates to `hyperframes_compose`, which owns workspace materialization under `workspaces/<name>/hyperframes/`, runs `hyperframes lint → validate → render`, and returns the MP4 path.
   4. `hyperframes lint` and `hyperframes validate` MUST both pass before render. Never skip validate; contrast can be deferred with `skip_contrast=true` during iteration but not for final delivery.
 - **`render_runtime="ffmpeg"`** — simple concat/trim with no composition. Call `video_compose` directly; it will not auto-upgrade to Remotion.
 - **Runtime unavailable** — do NOT silently swap to a different engine. Surface the blocker to the user per AGENT_GUIDE.md > "Escalate Blockers Explicitly" and wait for approval (recorded as a `render_runtime_selection` decision in decision_log) before switching.
@@ -41,7 +41,7 @@ The post-render self-review (final_review) is identical across runtimes — same
 
 ```
 Project structure:
-  projects/<name>/assets/images/*.png     ← where images were generated
+  video_projects/<name>/assets/images/*.png     ← where images were generated
   remotion-composer/public/<name>/*.png   ← where Remotion reads them
 
 Required: Copy or symlink images AND music into public/<project-name>/
@@ -227,7 +227,7 @@ Recommended metadata keys:
 
 ## Common Pitfalls
 
-- **Forgetting to copy assets to `remotion-composer/public/`** — the #1 cause of render failures. Images generate to `projects/<name>/assets/` but Remotion reads from `public/`.
+- **Forgetting to copy assets to `remotion-composer/public/`** — the #1 cause of render failures. Images generate to `video_projects/<name>/assets/` but Remotion reads from `public/`.
 - Soft or aliased text after rendering.
 - Compression choices that damage diagrams.
 - Scene cadence changing between preview and final.

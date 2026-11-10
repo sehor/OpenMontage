@@ -124,12 +124,12 @@ Process asset tasks grouped by tool for efficiency:
 1. Read playbook's `audio.music_mood` and `audio.music_volume`
 2. Check the music decision from `proposal_packet.production_plan.music_source` (set by the Proposal Director)
 3. Source the background track in this priority order:
-   - **User-selected library track**: If the proposal specified a track from `music_library/`, copy it to `projects/<project>/assets/music/background_music.mp3`
+   - **User-selected library track**: If the proposal specified a track from `music_library/`, copy it to `video_projects/<project>/assets/music/background_music.mp3`
    - **User music library (`music_library/`)**: If the folder exists and has tracks, pick the best match for the playbook's `audio.music_mood`. List candidates by filename and let the EP decide.
    - **Music generation API**: Use `music_gen` (ElevenLabs) or `suno_music` if available. Check status via registry first — if the tool is unavailable or quota-exhausted, skip immediately (do NOT attempt and fail silently).
    - **No music available**: Log this clearly in the asset manifest as `"music_status": "unavailable"` with the reason. Do NOT silently produce a video without music — the EP and user should know.
 4. Duration should be at least as long as total video duration. If shorter, it can be looped by the compose stage.
-5. Verify the audio file exists at `projects/<project>/assets/music/background_music.mp3`
+5. Verify the audio file exists at `video_projects/<project>/assets/music/background_music.mp3`
 
 **Critical:** If music generation fails or is unavailable, report it immediately in the asset manifest — do not defer the problem to the compose stage.
 
@@ -254,7 +254,7 @@ If you encounter a generation technique, provider behavior, or prompting pattern
 
 1. **Search the web** for current best practices — models and APIs change frequently, and the agent's training data may be stale
 2. **Check `.agents/skills/`** for existing Layer 3 knowledge (provider-specific prompting guides, API patterns)
-3. **If neither helps**, write a project-scoped skill at `projects/<project-name>/skills/<name>.md` documenting what you learned
+3. **If neither helps**, write a project-scoped skill at `skills/projects/<project-name>/<name>.md` documenting what you learned
 4. **Reference source URLs** in the skill so the knowledge is traceable
 5. **Log it** in the decision log: `category: "capability_extension"`, `subject: "learned technique: <name>"`
 

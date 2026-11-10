@@ -221,7 +221,7 @@ stages:
     success_criteria:
       - Schema-valid asset_manifest
       - All referenced asset files exist
-      - Character assets are organized under projects/<name>/assets/characters
+      - Character assets are organized under video_projects/<name>/assets/characters
 
   - name: edit
     skill: pipelines/character-animation/edit-director

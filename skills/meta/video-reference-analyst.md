@@ -359,7 +359,7 @@ Present the sample with: "Here's a preview. Does this feel right? Things I can
 adjust: voice, visual style, pacing, music, colors."
 
 Iterate on sample feedback until approved. Store samples at:
-`projects/<name>/assets/sample/sample_v{N}.mp4`
+`video_projects/<name>/assets/sample/sample_v{N}.mp4`
 
 ### Step 6: Enter Pipeline (HARD REDIRECT)
 

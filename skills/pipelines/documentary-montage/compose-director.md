@@ -95,7 +95,7 @@ For a pipeline this simple, the cleanest path is:
 ```python
 video_compose.execute({
     "operation": "render",
-    "output_path": "projects/<name>/renders/final.mp4",
+    "output_path": "video_projects/<name>/renders/final.mp4",
     "edit_decisions": edit_decisions_with_renderer_family,
     "asset_manifest": asset_manifest,
 })
@@ -179,12 +179,12 @@ appears on top of live footage rather than cutting to a black card.
 **Execution:**
 
 1. Compose the body via FFmpeg (cuts + LUT + music + silence window).
-   Save as `projects/<name>/renders/body.mp4`. Note the body fps.
+   Save as `video_projects/<name>/renders/body.mp4`. Note the body fps.
 2. Compute `durationInFrames = round(duration_seconds × body_fps)`.
 3. Render the end-tag with alpha via Remotion CLI:
    ```bash
    npx remotion render src/index.tsx EndTagOverlay \
-     projects/<name>/renders/end_tag_overlay.mov \
+     video_projects/<name>/renders/end_tag_overlay.mov \
      --codec=prores --prores-profile=4444 \
      --pixel-format=yuva444p10le --image-format=png \
      --props='{"text":"...","palette":"...","overlay":true,
@@ -206,7 +206,7 @@ appears on top of live footage rather than cutting to a black card.
      -map "[v]" -map "0:a" \
      -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p \
      -c:a aac -b:a 192k \
-     projects/<name>/renders/final.mp4
+     video_projects/<name>/renders/final.mp4
    ```
    `eof_action=pass` means the body video continues after the overlay
    ends. The overlay's own alpha handles the fade-in/hold/fade-out.
@@ -227,7 +227,7 @@ this only when `end_tag_plan.mode == "concat"`.
 2. Render the end-tag as opaque MP4:
    ```bash
    npx remotion render src/index.tsx EndTag \
-     projects/<name>/renders/end_tag.mp4 \
+     video_projects/<name>/renders/end_tag.mp4 \
      --props='{"text":"...","palette":"...","durationInFrames":132}'
    ```
    (5.5s at 24fps = 132 frames). Canvas must match body canvas.
@@ -247,7 +247,7 @@ a contract violation. Stop and surface before finalizing.
 Record in `render_report`:
 - `end_tag_rendered: true | false`
 - `end_tag_mode: "overlay" | "concat"`
-- `end_tag_path: "projects/<name>/renders/end_tag_overlay.mov"` (or `.mp4` for concat)
+- `end_tag_path: "video_projects/<name>/renders/end_tag_overlay.mov"` (or `.mp4` for concat)
 - `end_tag_offset_seconds: <number>` (overlay mode only)
 - `end_tag_text: "..."` (for audit trail)
 
@@ -296,7 +296,7 @@ Record verifications in `render_report.verification_notes`.
   "version": "1.0",
   "outputs": [
     {
-      "path": "projects/<name>/renders/final.mp4",
+      "path": "video_projects/<name>/renders/final.mp4",
       "format": "mp4",
       "codec": "h264",
       "audio_codec": "aac",

@@ -153,7 +153,7 @@ Based on the user's tier, present **3 ready-to-use prompts** they can copy right
 
 After prompts, give a 2-3 sentence summary of what happens when they start:
 
-"When you give me a prompt, I'll first research the topic with live web searches, then present you with concept options and cost estimates. You pick your favorite, and I'll produce the video stage by stage — asking for your approval at each creative decision. The final video lands in `projects/<name>/renders/`."
+"When you give me a prompt, I'll first research the topic with live web searches, then present you with concept options and cost estimates. You pick your favorite, and I'll produce the video stage by stage — asking for your approval at each creative decision. The final video lands in `video_projects/<name>/renders/`."
 
 Do NOT explain the full architecture, three-layer knowledge system, or pipeline internals here. That's for the curious — point them to `AGENT_GUIDE.md` if they want to go deeper.
 

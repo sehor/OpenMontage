@@ -26,7 +26,7 @@ registry.
 Write character assets under:
 
 ```text
-projects/<project-name>/assets/characters/<character-id>/
+video_projects/<project-name>/assets/characters/<character-id>/
 ```
 
 Use subfolders:
@@ -40,7 +40,7 @@ previews/
 Generated backgrounds go under:
 
 ```text
-projects/<project-name>/assets/backgrounds/
+video_projects/<project-name>/assets/backgrounds/
 ```
 
 ## Process

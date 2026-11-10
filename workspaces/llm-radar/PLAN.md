@@ -7,7 +7,7 @@
 
 ## 1. 目标与明确边界
 
-在 OpenMontage/projects/llm-radar 建立可复用的成片组装项目。OpenMontage 接收 LLM Radar 提供的动画片段、图片、音效、音乐和相关信息，按每期配置组装成完整视频。
+在 OpenMontage/workspaces/llm-radar 维护可复用的成片组装代码，各期资源存放于 video_projects/llm-radar。OpenMontage 接收 LLM Radar 提供的动画片段、图片、音效、音乐和相关信息，按每期配置组装成完整视频。
 
 这里的“模板”指成片结构、镜头顺序、转场、文字叠加和混音规则，不是雷达动画生成模板。
 
@@ -77,7 +77,7 @@ OpenMontage 只读接收上游交付清单，复制本期需要的媒体和元�
 目前仅有本计划；后续结构为：
 
 ```text
-projects/llm-radar/
+workspaces/llm-radar/
   PLAN.md
   README.md
   config/

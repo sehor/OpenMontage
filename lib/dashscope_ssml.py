@@ -11,7 +11,7 @@ from xml.etree import ElementTree as ET
 from lib.dashscope_config import speech_model
 
 MODEL = speech_model(purpose="ssml").model
-VOICE_LIBRARY = Path(__file__).resolve().parents[1] / "projects/voice-library/audio"
+VOICE_LIBRARY = Path(__file__).resolve().parents[1] / "assets/voice-library/audio"
 LABEL = re.compile(r"(?m)^[ \t]*([^：:\r\n]{1,80})[：:][ \t]*")
 
 
@@ -107,7 +107,8 @@ def integer(value: Any, low: int, high: int, name: str) -> int:
     return value
 
 
-def validate_ssml(text: str, model: str, voice_models: dict | None = None) -> dict:
+def validate_ssml(text: str, model: str, voice_models: dict | None = None, *,
+                  request_voice: str | None = None) -> dict:
     """Validate sibling speak fragments; declarations/entities are never accepted."""
     if re.search(r"<!|<\?", text):
         raise ValueError("SSML declarations, entities, comments and processing instructions are unsupported")
@@ -123,7 +124,7 @@ def validate_ssml(text: str, model: str, voice_models: dict | None = None) -> di
             raise ValueError("Only sibling speak fragments are supported")
         if set(speak.attrib) - {"voice", "rate", "pitch", "volume"}:
             raise ValueError("Unsupported speak attribute")
-        voice = speak.get("voice", "")
+        voice = speak.get("voice", request_voice or "")
         if not voice.strip():
             raise ValueError("Every speak must specify a voice ID")
         declared = (voice_models or {}).get(voice)
@@ -191,7 +192,7 @@ def validate_ssml(text: str, model: str, voice_models: dict | None = None) -> di
 
 def compile_ssml(source: str, roles: dict, segments: list[dict] | None = None,
                  source_format: str | None = None, model: str | None = None,
-                 library: Path = VOICE_LIBRARY) -> dict:
+                 library: Path = VOICE_LIBRARY, *, segmented: bool = False) -> dict:
     profile = speech_model(model, purpose="ssml")
     if profile.protocol != "tts":
         raise ValueError("Use the dialogue compiler for audio-generation models")
@@ -216,6 +217,7 @@ def compile_ssml(source: str, roles: dict, segments: list[dict] | None = None,
         for label in source_labels(source, voices):
             covered[label.start():label.end()] = b"\x01" * (label.end() - label.start())
     fragments, normalized, cursor = [], [], 0
+    voice_models = {v["voice_id"]: v["model"] for v in voices.values()}
     for segment in segments:
         if not isinstance(segment, dict):
             raise ValueError("Each segment must be an object")
@@ -231,7 +233,8 @@ def compile_ssml(source: str, roles: dict, segments: list[dict] | None = None,
             raise ValueError("Segment text must match the original source slice exactly")
         covered[start:end] = b"\x01" * (end - start)
         cursor = end
-        attributes = {"voice": voices[role]["voice_id"]}
+        voice_id = voices[role]["voice_id"]
+        attributes = {} if segmented else {"voice": voice_id}
         for key in ("rate", "pitch"):
             if key in segment:
                 attributes[key] = str(number(segment[key], 0.5, 2, key))
@@ -256,20 +259,33 @@ def compile_ssml(source: str, roles: dict, segments: list[dict] | None = None,
             if segment.get("breaks"):
                 raise ValueError("Use either ssml or breaks, not both")
             markup = segment["ssml"]
-            validate_ssml(markup, model, {voices[role]["voice_id"]: model})
+            validate_ssml(markup, model, {voice_id: model},
+                          request_voice=voice_id if segmented else None)
             speak = ET.fromstring(markup)
-            if speak.tag != "speak" or speak.get("voice") != voices[role]["voice_id"]:
+            if speak.tag != "speak" or speak.get("voice", voice_id) != voice_id:
                 raise ValueError("Segment SSML voice must match its role")
             if "".join(speak.itertext()) != text:
                 raise ValueError("SSML display text must match the original source slice")
+            if segmented:
+                # Accept older annotations, but keep Flash voice selection in the role mapping.
+                speak.attrib.pop("voice", None)
         # XML normalizes literal CR/CRLF on parsing; references preserve source bytes.
-        fragments.append(ET.tostring(speak, encoding="unicode", short_empty_elements=True).replace("\r", "&#13;"))
-        normalized.append({**segment, "text": text, "voice_id": voices[role]["voice_id"]})
+        fragment = ET.tostring(speak, encoding="unicode", short_empty_elements=True).replace("\r", "&#13;")
+        fragments.append(fragment)
+        normalized_segment = {**segment, "text": text, "voice_id": voice_id}
+        if segmented:
+            if validate_ssml(fragment, model, {voice_id: model}, request_voice=voice_id)["spoken_text"] != text:
+                raise ValueError("SSML round-trip changed the spoken text")
+            normalized_segment["ssml"] = fragment
+        normalized.append(normalized_segment)
     missing = [i for i, char in enumerate(source) if not covered[i] and not char.isspace()]
     if missing:
         raise ValueError(f"Unassigned source text at offset {missing[0]}; no omissions allowed")
     ssml = "\n".join(fragments)
-    voice_models = {v["voice_id"]: v["model"] for v in voices.values()}
+    if segmented:
+        return {"ssml": ssml, "model": model, "roles": voices, "segments": normalized,
+                "validation": {"valid": True, "source_coverage": True, "text_preserved": True,
+                               "voice_ids": list(dict.fromkeys(s["voice_id"] for s in normalized))}}
     validation = validate_ssml(ssml, model, voice_models)
     if validation["spoken_text"] != "".join(s["text"] for s in normalized):
         raise ValueError("SSML round-trip changed the spoken text")

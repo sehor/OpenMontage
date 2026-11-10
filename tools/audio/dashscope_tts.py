@@ -161,7 +161,8 @@ class DashScopeTTS(BaseTool):
                 speech = {"text": inputs["text"], "voice": voice, "format": fmt, "sample_rate": sample_rate}
             if profile.protocol == "tts" and inputs.get("enable_ssml", False):
                 from lib.dashscope_ssml import native_synthesis_status, validate_ssml
-                ssml_info = validate_ssml(inputs["text"], model, inputs.get("ssml_voice_models"))
+                ssml_info = validate_ssml(inputs["text"], model, inputs.get("ssml_voice_models"),
+                                          request_voice=inputs.get("voice_id"))
                 status = native_synthesis_status(model, ssml_info["voice_ids"])
                 if not status["allowed"]:
                     raise ValueError(status["reason"])

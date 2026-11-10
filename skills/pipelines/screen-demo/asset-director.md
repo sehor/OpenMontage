@@ -153,7 +153,7 @@ If you encounter a generation technique, provider behavior, or prompting pattern
 
 1. **Search the web** for current best practices — models and APIs change frequently, and the agent's training data may be stale
 2. **Check `.agents/skills/`** for existing Layer 3 knowledge (provider-specific prompting guides, API patterns)
-3. **If neither helps**, write a project-scoped skill at `projects/<project-name>/skills/<name>.md` documenting what you learned
+3. **If neither helps**, write a project-scoped skill at `skills/projects/<project-name>/<name>.md` documenting what you learned
 4. **Reference source URLs** in the skill so the knowledge is traceable
 5. **Log it** in the decision log: `category: "capability_extension"`, `subject: "learned technique: <name>"`
 

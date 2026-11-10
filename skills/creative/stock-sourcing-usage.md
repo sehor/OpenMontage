@@ -5,6 +5,12 @@
 
 ## Available Stock Tools
 
+**Default acquisition workflow:** read [media-library-usage.md](media-library-usage.md)
+and use `media_library` first. Search the database, automatically search Pixabay
+for unsuitable/missing local material, then download only user-selected IDs.
+The direct provider recipes below are legacy references, not the default workflow.
+Pixabay image/video traffic now uses a shared serial gate and 24-hour cache.
+
 | Tool | Provider | Content | Cost | Rate Limit | Best For |
 |------|----------|---------|------|-----------|----------|
 | `pexels_image` | Pexels | Photos | Free | 200/hr | High-quality photography, diverse library |

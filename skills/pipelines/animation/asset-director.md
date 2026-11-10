@@ -80,7 +80,7 @@ When `animation_mode == "image_animation"`, each scene needs **2-3 images** for 
 
 **Cost estimation:** 2-3 images per scene × $0.03-0.13/image depending on provider.
 
-**Reference:** See `projects/mori-no-seishin/generate_images.py` for the proven batch generation pattern.
+**Reference:** See `workspaces/mori-no-seishin/generate_images.py` for the proven batch generation pattern.
 
 6. **Copy to Remotion public directory** — After generating all images, copy them to `remotion-composer/public/<project-name>/` so Remotion can access them via `staticFile()`. Image paths in the composition JSON are relative to this directory:
    ```
@@ -144,7 +144,7 @@ If you encounter a generation technique, provider behavior, or prompting pattern
 
 1. **Search the web** for current best practices — models and APIs change frequently, and the agent's training data may be stale
 2. **Check `.agents/skills/`** for existing Layer 3 knowledge (provider-specific prompting guides, API patterns)
-3. **If neither helps**, write a project-scoped skill at `projects/<project-name>/skills/<name>.md` documenting what you learned
+3. **If neither helps**, write a project-scoped skill at `skills/projects/<project-name>/<name>.md` documenting what you learned
 4. **Reference source URLs** in the skill so the knowledge is traceable
 5. **Log it** in the decision log: `category: "capability_extension"`, `subject: "learned technique: <name>"`
 

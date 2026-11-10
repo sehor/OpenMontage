@@ -20,26 +20,29 @@ htmlcov/
 # Pipeline outputs (regenerable — never commit large media)
 output/
 pipeline/
+pipelines/
 tests/qa/output/
 
-# Project workspaces (generated assets, renders — all regenerable)
-projects/
-!projects/
-projects/*
-!projects/llm-radar/
-projects/llm-radar/*
-!projects/llm-radar/PLAN.md
-!projects/llm-radar/README.md
-!projects/llm-radar/config/
-!projects/llm-radar/schemas/
-!projects/llm-radar/assembly/
-!projects/llm-radar/scripts/
-!projects/llm-radar/tests/
-projects/llm-radar/config/*.local.json
+# Video-specific resources; code and test outputs live elsewhere
+video_projects/
+assets/voice-library/
+
+# Local code/composition workspaces (keep the maintained radar adapter)
+workspaces/*
+!workspaces/llm-radar/
+workspaces/llm-radar/*
+!workspaces/llm-radar/PLAN.md
+!workspaces/llm-radar/README.md
+!workspaces/llm-radar/config/
+!workspaces/llm-radar/schemas/
+!workspaces/llm-radar/assembly/
+!workspaces/llm-radar/scripts/
+!workspaces/llm-radar/tests/
+workspaces/llm-radar/config/*.local.json
 
 # Corpus directories (downloaded stock clips, thumbnails, embeddings —
 # regenerable from source APIs via corpus_builder). Explicit rule even
-# though most corpora live under projects/ since agents sometimes
+# though most corpora live under video_projects/ since agents sometimes
 # build scratch corpora at the repo root.
 corpus/
 **/corpus/
@@ -63,6 +66,9 @@ pexels_video_*.mp4
 
 # Scratch/debug scripts
 scratch/
+新文件*.txt
+新建文本文档*.txt
+*.tmp
 
 # Internal docs (strategy, handoffs, playbooks — not shipped)
 internal/

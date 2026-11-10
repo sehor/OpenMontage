@@ -187,10 +187,12 @@ Infrastructure files:
 
 ## Project Directory Convention
 
-Every production run creates a project workspace under `projects/`. This directory is gitignored — all generated assets are regenerable.
+Every production run stores its project-specific resources under `video_projects/` (formerly `projects/`): manuscripts, media, subtitles, and production records. Keep code and composition workspaces in `workspaces/` or the appropriate source directory, tests/results in `tests/`, `tests/qa/output/`, or `scratch/diagnostics/`, and shared assets in the media library. None of these belong in `video_projects/`. This resource directory is gitignored.
+
+Translate `projects/` paths in third-party skill examples to these locations according to the file's purpose; those examples do not override this convention.
 
 ```
-projects/<project-name>/
+video_projects/<project-name>/
 ├── artifacts/          # JSON artifacts from each stage (research_brief, script, scene_plan, etc.)
 ├── assets/
 │   ├── images/         # Generated images (PNG)
@@ -204,9 +206,16 @@ projects/<project-name>/
 
 **Naming convention**: Use kebab-case derived from the video title (e.g., `hidden-math-of-nature`, `how-music-rewires-brain`).
 
-Create the project directory at pipeline initialization, before any stage runs. All tools and agents should write outputs to these paths — never to the repo root or ad-hoc locations.
+Create the resource directory at pipeline initialization, before any stage runs. Production resources go here; code, composition workspaces, shared assets, and test outputs use the separate locations above.
 
 ## Music Library
+
+For production material sourcing, first read `skills/creative/media-library-usage.md`.
+Query `media_library`'s local database before stock providers. If local material
+is unsuitable, automatically search Pixabay images/videos without another approval;
+only download the candidates the user selects. Audio is local-only in this workflow.
+Directory synchronization is explicit, never a prerequisite performed on every search.
+This local-first rule takes precedence over direct stock-provider acquisition recipes.
 
 Users can place royalty-free music tracks in `music_library/` (gitignored). The asset director will check this folder before falling back to API-based music generation.
 

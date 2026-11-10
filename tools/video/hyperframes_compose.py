@@ -135,7 +135,7 @@ class HyperFramesCompose(BaseTool):
                 "type": "string",
                 "description": (
                     "Target HyperFrames workspace directory. Typically "
-                    "`projects/<name>/hyperframes/`. Required for every op "
+                    "`workspaces/<name>/hyperframes/`. Required for every op "
                     "except doctor."
                 ),
             },
@@ -790,7 +790,7 @@ class HyperFramesCompose(BaseTool):
         HyperFrames resolves `src=` relative to the composition HTML file, so
         every asset must live inside the workspace tree. Copying is simpler
         (and portable) than symlinking, at the cost of disk space — these
-        are regenerable under `projects/`.
+        are regenerable under `workspaces/`.
         """
         asset_lookup = {a["id"]: a for a in assets if "id" in a}
         assets_dir = workspace / "assets"

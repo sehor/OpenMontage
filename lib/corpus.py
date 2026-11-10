@@ -75,7 +75,7 @@ class Corpus:
 
     Usage::
 
-        corp = Corpus(Path("projects/foo/corpus"))
+        corp = Corpus(Path("video_projects/foo/corpus"))
         corp.load()
         corp.add(record, clip_embedding, tag_embedding)
         corp.save()

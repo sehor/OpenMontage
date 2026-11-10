@@ -61,6 +61,10 @@ class TTSSelector(BaseTool):
                 "type": "number", "minimum": 0, "maximum": 1,
                 "description": "Style exaggeration (ElevenLabs). Higher = more expressive.",
             },
+            "speech_style": {
+                "type": "string",
+                "description": "Natural-language delivery instructions (Gemini), separate from spoken text.",
+            },
             "output_format": {
                 "type": "string",
                 "description": "Audio output format (e.g. mp3_44100_128). Passed through to provider.",
@@ -138,7 +142,8 @@ class TTSSelector(BaseTool):
         # Normal generation — use scored selection
         tool, score = self._select_best_tool(inputs, candidates, task_context)
         if tool is None:
-            return ToolResult(success=False, error="No TTS provider available.")
+            preferred = inputs.get("preferred_provider", "auto")
+            return ToolResult(success=False, error=f"Requested TTS provider {preferred!r} unavailable or excluded." if preferred != "auto" else "No TTS provider available.")
 
         result = tool.execute(inputs)
         if result.success:
@@ -179,6 +184,7 @@ class TTSSelector(BaseTool):
             for score_item in rankings:
                 if score_item.provider == preferred and score_item.provider in tool_by_provider:
                     return tool_by_provider[score_item.provider], score_item
+            return None, None
 
         for score_item in rankings:
             if score_item.provider in tool_by_provider:

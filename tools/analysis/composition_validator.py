@@ -93,7 +93,7 @@ class CompositionValidator(BaseTool):
         return 0.0
 
     def execute(self, inputs: dict[str, Any]) -> ToolResult:
-        comp_path = Path(inputs["composition_path"])
+        comp_path = Path(inputs["composition_path"]).resolve()
         if not comp_path.exists():
             return ToolResult(success=False, error=f"Composition not found: {comp_path}")
 
@@ -118,12 +118,19 @@ class CompositionValidator(BaseTool):
         if assets_root is None or not assets_root.is_dir():
             if runtime == "hyperframes":
                 # HyperFrames workspaces keep assets/ alongside index.html.
-                # Composition JSON typically lives in projects/<p>/artifacts/,
-                # so the workspace is at projects/<p>/hyperframes/.
+                # Composition JSON typically lives in video_projects/<p>/artifacts/,
+                # so the workspace is at workspaces/<p>/hyperframes/.
                 candidate = comp_path
                 resolved = None
                 for _ in range(5):
                     candidate = candidate.parent
+                    repo_root = Path(__file__).resolve().parents[2]
+                    resource_root = repo_root / "video_projects"
+                    if candidate.is_relative_to(resource_root):
+                        workspace_assets = repo_root / "workspaces" / candidate.relative_to(resource_root) / "hyperframes" / "assets"
+                        if workspace_assets.is_dir():
+                            resolved = workspace_assets
+                            break
                     hf_assets = candidate / "hyperframes" / "assets"
                     if hf_assets.is_dir():
                         resolved = hf_assets

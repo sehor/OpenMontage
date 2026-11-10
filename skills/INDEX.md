@@ -4,6 +4,8 @@
 
 This file lists all available Layer 2 skills and documents the 3-layer knowledge architecture.
 
+Google Gemini synthesis and voice replication: [Gemini TTS](core/gemini-tts.md).
+
 ## Knowledge Architecture
 
 ```
@@ -112,6 +114,7 @@ SSML uses [core/dashscope-ssml.md](core/dashscope-ssml.md).
 | Image Provider Usage | `creative/image-provider-usage.md` | Provider selection (FLUX/Grok/OpenAI/Recraft/stock), cost-quality tradeoffs | `flux-best-practices`, `bfl-api`, `grok-media` |
 | B-Roll Planning | `creative/broll-planning.md` | Stock vs. generated decision, query construction, footage evaluation | — |
 | Stock Sourcing Usage | `creative/stock-sourcing-usage.md` | Pexels/Pixabay usage, parameters, licensing, integration | — |
+| Local-first Media Library | `creative/media-library-usage.md` | SQLite search, explicit sync, serial Pixabay search and selected downloads | — |
 | Scene Detect Usage | `creative/scene-detect-usage.md` | Threshold tuning, algorithm selection, content presets | â€" |
 | Diagram Gen Usage | `creative/diagram-gen-usage.md` | Complexity limits, progressive building, themes | `beautiful-mermaid` |
 | Music Gen Usage | `creative/music-gen-usage.md` | BPM selection, prompt engineering, duration matching | `music`, `elevenlabs` |

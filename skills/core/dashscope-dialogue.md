@@ -58,14 +58,15 @@ these perceptual properties. No automatic retries or provider substitutions.
 The existing command now defaults to this dialogue workflow:
 
 ```powershell
-uv --cache-dir .cache/uv run --no-project --python .venv/Scripts/python.exe python -m examples.dashscope_ssml --source projects/my-project/manuscript.txt --roles projects/my-project/roles.json --project-dir projects/my-project
+uv --cache-dir .cache/uv run --no-project --python .venv/Scripts/python.exe python -m examples.dashscope_ssml --source video_projects/my-project/manuscript.txt --roles video_projects/my-project/roles.json --project-dir video_projects/my-project
 ```
 
 Despite the historical module name, this emits a dialogue prompt by default.
 Add `--segments <reviewed.json> --source-format plain` for unlabelled prose.
 Add `--synthesize` only for requested audio. `--model <profile-or-full-ID>`
-overrides the model for that run. `--ssml` explicitly selects the legacy SSML
-compiler. Existing synthesis receipts prevent accidental repeat billing.
+overrides the model for that run. `--ssml` selects the configured SSML model
+and the segmented compiler. `--legacy-ssml` explicitly selects the old
+single-request compiler. Existing synthesis receipts prevent accidental repeat billing.
 
 ## Configuration is the source of truth
 
@@ -82,10 +83,10 @@ Official reference: https://help.aliyun.com/zh/model-studio/audio-generation-api
 
 ## Flash 分段对话（可选）
 
-保持 Next 为默认模型。使用 `--model flash` 选择按完整发言轮次合成：
+保持 Next 为默认模型。使用 `--ssml` 或 `--model flash` 选择按完整发言轮次合成：
 
 ```powershell
-uv --cache-dir .cache/uv run --no-project --python .venv/Scripts/python.exe python -m examples.dashscope_ssml --source projects/my-project/manuscript.txt --roles projects/my-project/roles.json --project-dir projects/my-project --model flash
+uv --cache-dir .cache/uv run --no-project --python .venv/Scripts/python.exe python -m examples.dashscope_ssml --source video_projects/my-project/manuscript.txt --roles video_projects/my-project/roles.json --project-dir video_projects/my-project --model flash
 ```
 
 先检查编译产物，再加 `--synthesize` 生成音频、句级字幕与时间轴。此模式通过注册工具
@@ -99,10 +100,11 @@ roles.json 中可以直接使用已有复刻库名（如 Geny），也可以使�
 仅在官方音色列表确认支持 SSML 后标注 true；缺少标注的显式音色只能合成纯文本。
 库内成功复刻的 Flash 音色默认可使用 SSML，不重新上传或登记。
 
-segments 支持 `ssml` 字段：完整单个 `<speak voice="...">...</speak>`，包含
-break、sub、phoneme、say-as；标签内显示文本必须与原文切片完全一致。它与 breaks
-字段互斥。sub 的 alias 用于合成读音。SSML 与原文分别保存；字幕直接使用返回的
-original_text，不再用 readings 或 reading_map 做原稿对应。
+segments 的 `ssml` 字段接受完整的单个 `<speak>...</speak>`，支持 break、sub、phoneme、
+say-as。标签内显示文本必须与原文切片一致，且不能同时设置 breaks。旧片段的 `voice`
+须与角色映射一致，转换时会移除。输出的 `.ssml` 按轮次保存标签，配套 `.json`
+保存角色、复刻音色 ID 和分段请求。每次合成只从请求的 `input.voice` 选音色。
+字幕直接使用返回的 original_text。
 
 默认轮次间静音 300ms，`--gap-ms` 调整；segments 的 `gap_after_ms` 可覆盖某轮。
 超长轮次沿句末拆分，内部不额外加静音。无法安全拆分时明确报错，不截断。

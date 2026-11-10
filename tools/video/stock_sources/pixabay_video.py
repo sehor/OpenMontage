@@ -5,11 +5,9 @@ unified `StockSource` protocol. Pixabay has a large community-contributed
 video library (hundreds of thousands of clips) with a CC0-like licence
 that allows free commercial use without attribution.
 
-Uses the same ``PIXABAY_API_KEY`` as the Pixabay Music tool — if you've
-already set it for music search, this adapter is automatically available.
+Uses ``PIXABAY_API_KEY`` shared with the image/video API tools.
 
-Rate limit: 100 requests per 60 seconds (free tier). The adapter trusts
-the API to enforce this and does not self-throttle.
+Uses the shared persistent Pixabay cache and serial request gate.
 
 What Pixabay Video is good for
 ------------------------------
@@ -48,8 +46,6 @@ class PixabayVideoSource:
         return bool(os.environ.get("PIXABAY_API_KEY"))
 
     def search(self, query: str, filters: SearchFilters) -> list[Candidate]:
-        import requests
-
         kind = (filters.kind or "video").lower()
         if kind == "image":
             return []  # video-only adapter
@@ -66,9 +62,8 @@ class PixabayVideoSource:
         if filters.max_duration is not None:
             params["max_duration"] = int(filters.max_duration)
 
-        r = requests.get(_API_URL, params=params, timeout=30)
-        r.raise_for_status()
-        data = r.json()
+        from lib.pixabay_client import PixabayClient
+        data = PixabayClient().search("video", params)
         hits = data.get("hits", []) or []
 
         out: list[Candidate] = []
@@ -109,20 +104,8 @@ class PixabayVideoSource:
         return out
 
     def download(self, candidate: Candidate, out_path: Path) -> Path:
-        import requests
-
-        out_path = Path(out_path)
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-
-        with requests.get(
-            candidate.download_url, stream=True, timeout=120
-        ) as r:
-            r.raise_for_status()
-            with open(out_path, "wb") as f:
-                for chunk in r.iter_content(chunk_size=1 << 16):
-                    if chunk:
-                        f.write(chunk)
-        return out_path
+        from lib.pixabay_client import PixabayClient
+        return PixabayClient().download(candidate.download_url, out_path)
 
 
 def _pick_rendition(

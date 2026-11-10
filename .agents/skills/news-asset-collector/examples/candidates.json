@@ -1,0 +1,36 @@
+[
+  {
+    "id": "offline-example-1",
+    "news_id": "example-story",
+    "brand": null,
+    "product": null,
+    "event": null,
+    "scene": "reference-link",
+    "description": "Offline example; no real news claim or inspected media.",
+    "category": "reference",
+    "media_type": "image",
+    "source": {
+      "page_url": "https://example.com/",
+      "media_url": null,
+      "title": "Offline fixture",
+      "caption": null,
+      "alt": null,
+      "published_at": null,
+      "event_at": null,
+      "retrieved_at": null
+    },
+    "provenance": {
+      "method": "page_context",
+      "evidence": [],
+      "model": null,
+      "frame_timestamps_seconds": [],
+      "clip_start_seconds": null,
+      "clip_end_seconds": null,
+      "transcript_source": null
+    },
+    "confidence": {"overall": 0, "per_field": {}, "rationale": "Unverified offline fixture"},
+    "topics": [],
+    "keywords": [],
+    "link_only_reason": "Offline fixture only; no downloadable media URL supplied"
+  }
+]

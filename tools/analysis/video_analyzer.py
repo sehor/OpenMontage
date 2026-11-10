@@ -155,7 +155,7 @@ class VideoAnalyzer(BaseTool):
         if inputs.get("output_dir"):
             output_dir = Path(inputs["output_dir"])
         else:
-            output_dir = Path("projects/_analysis") / f"analysis_{int(time.time())}"
+            output_dir = Path(".cache/analysis") / f"analysis_{int(time.time())}"
         output_dir.mkdir(parents=True, exist_ok=True)
 
         platform = self._detect_platform(source)

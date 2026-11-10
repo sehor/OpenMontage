@@ -4,6 +4,10 @@ Flash 分段渲染默认逐轮使用 HTTP SSE 和 `word_timestamp_enabled: true`
 audio-generation 调用保持原样；直接调用 `dashscope_tts` 时 SSE 是显式选项：
 `streaming: true`、`word_timestamp_enabled: true`。时间戳选项不能单独用于非流式或 Next。
 
+Flash 转换生成的 `.ssml` 不含 `<speak voice="…">`，角色和音色保存在配套的 `.json`。
+分段请求只通过 `input.voice` 选择音色，保留停顿、语速和发音标签。同句对照发现，同时发送
+`<speak voice="…">` 会使主播样音的基频明显偏离参考录音。请求文本变化也会区分旧缓存。
+
 ## 返回数据与时间轴
 
 每轮保存 WAV、`.events.jsonl`（完整返回事件，含音频 Base64）、`.timestamps.json`
@@ -73,7 +77,7 @@ Flash 的本地识别与旧转写缓存读取代码已移除，不再接受 `leg
 存在成功结果时复用捕获文件，以禁止网络访问的适配器重放实际渲染流程；
 存在失败或未完成回执时拒绝重发。该入口不会处理全文。
 
-实测产物位于本机 `projects/sleep-flash-voiceover/validation/stream-20261105/`，
+实测产物位于本机 `scratch/diagnostics/sleep-flash-voiceover/validation/stream-20261105/`，
 包括两轮请求、原始事件、音频、audit.json 和 assembled/ 中的字幕与时间轴。
 这些用户项目文件被 Git 忽略；回归测试使用独立合成事件，不依赖私有音色或密钥。
 

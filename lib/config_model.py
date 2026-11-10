@@ -82,8 +82,16 @@ class DashScopeAudioConfig(BaseModel):
     models: dict[str, SpeechModelConfig] = Field(default_factory=dict)
 
 
+class GeminiAudioConfig(BaseModel):
+    model: str = "gemini-3.8-flash-tts"
+    default_voice: str = "Kore"
+    timeout_seconds: int = Field(default=180, ge=1)
+    max_reference_bytes: int = Field(default=10485760, ge=1)
+
+
 class AudioConfig(BaseModel):
     dashscope: DashScopeAudioConfig = Field(default_factory=DashScopeAudioConfig)
+    gemini: GeminiAudioConfig = Field(default_factory=GeminiAudioConfig)
 
 
 class OpenMontageConfig(BaseModel):

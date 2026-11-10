@@ -1,4 +1,4 @@
-"""Compile a reviewed dialogue prompt; optionally synthesize once with DashScope.
+"""Compile reviewed dialogue; optionally synthesize it with DashScope.
 
 Run from the repo root: uv run --no-project python -m examples.dashscope_ssml --help
 This bounded audio workflow does not create a video or infer characters in Python.
@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 import json
 from pathlib import Path
 
+from lib.dashscope_config import speech_model
 from tools.tool_registry import registry
 
 
@@ -18,17 +19,28 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", type=Path, required=True, help="UTF-8 text manuscript")
     parser.add_argument("--model", help="Configured model profile or full ID; defaults to project configuration")
-    parser.add_argument("--ssml", action="store_true", help="Explicit legacy single-voice SSML workflow")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--ssml", action="store_true", help="Compile segmented SSML with the configured SSML model")
+    mode.add_argument("--legacy-ssml", action="store_true", help="Explicit legacy single-request SSML workflow")
     parser.add_argument("--roles", type=Path, required=True, help="JSON role-to-library-name or reference audio mapping")
     parser.add_argument("--segments", type=Path, help="Agent-reviewed JSON list of source spans and delivery annotations")
     parser.add_argument("--source-format", choices=["plain", "labelled"])
     parser.add_argument("--project-dir", type=Path, required=True)
     parser.add_argument("--artifact-name", default="dialogue")
-    parser.add_argument("--synthesize", action="store_true", help="Make one paid request; default only compiles locally")
+    parser.add_argument("--synthesize", action="store_true", help="Submit paid synthesis; default only compiles locally")
     parser.add_argument("--gap-ms", type=float, default=300, help="Flash turn gap in milliseconds")
     args = parser.parse_args(argv)
+    model = args.model
+    if args.ssml:
+        try:
+            profile = speech_model(model, purpose="ssml")
+        except ValueError as exc:
+            parser.error(str(exc))
+        if profile.protocol != "tts":
+            parser.error("--ssml requires a TTS model such as flash")
+        model = profile.model
     registry.discover("tools.audio")
-    tool = registry.get("dashscope_ssml" if args.ssml else "dashscope_dialogue")
+    tool = registry.get("dashscope_ssml" if args.legacy_ssml else "dashscope_dialogue")
     # Validate the artifact name before using it in output paths.
     import jsonschema
     jsonschema.validate(args.artifact_name, tool.input_schema["properties"]["artifact_name"])
@@ -45,8 +57,8 @@ def main(argv: list[str] | None = None) -> int:
         inputs["segments"] = json.loads(args.segments.read_text(encoding="utf-8-sig"))
     if args.source_format:
         inputs["source_format"] = args.source_format
-    if args.model:
-        inputs["model"] = args.model
+    if model:
+        inputs["model"] = model
     compilation = tool.execute(inputs)
     if not compilation.success:
         print(compilation.error)

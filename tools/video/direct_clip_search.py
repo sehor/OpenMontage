@@ -106,7 +106,7 @@ class DirectClipSearch(BaseTool):
                 "type": "string",
                 "description": (
                     "Directory where clips and thumbnails are saved. "
-                    "e.g. projects/foo/assets/video/raw_act2"
+                    "e.g. video_projects/foo/assets/video/raw_act2"
                 ),
             },
             "queries": {

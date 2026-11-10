@@ -25,7 +25,7 @@ Scripts are allowed ONLY when:
 5. The user is informed: "I wrote a custom script for X because no existing tool handles Y"
 6. The script does NOT call external APIs without user approval
 
-Scripts go in: `projects/<project-name>/scripts/`
+Scripts go in: `workspaces/<project-name>/scripts/`
 
 ### Script Template
 
@@ -65,7 +65,7 @@ When the existing playbooks don't match the brief:
 ## Rules for New Skills (Technique Learning)
 
 When the agent discovers technique knowledge during web research:
-1. Document it as a project-scoped skill: `projects/<project-name>/skills/<name>.md`
+1. Document it as a project-scoped skill: `skills/projects/<project-name>/<name>.md`
 2. Follow the Layer 3 skill format:
    - Provider name and version
    - Provider-specific prompting patterns
@@ -79,7 +79,7 @@ When the agent discovers technique knowledge during web research:
 
 When a user needs a specific provider that isn't in the registry:
 1. The agent can create a minimal `BaseTool` subclass
-2. Save to `projects/<project-name>/tools/<name>.py`
+2. Save to `workspaces/<project-name>/tools/<name>.py`
 3. It MUST inherit from `BaseTool` and implement the full contract (input_schema, execute, capabilities, etc.)
 4. It MUST be registered before use
 5. Log as decision: `category: "capability_extension"`

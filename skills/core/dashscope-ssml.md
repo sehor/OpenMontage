@@ -1,10 +1,10 @@
 # Mixed-role manuscripts → Aliyun SSML
 
-This is the legacy, explicitly selected SSML workflow. For multi-role audio and
-the default configured model, read [dashscope-dialogue.md](dashscope-dialogue.md)
-and use `dashscope_dialogue`. The command below requires `--ssml` to retain this
-legacy behavior; without that flag it produces the new reference-conditioned
-dialogue prompt. Select a compatible configured TTS model for SSML.
+This is the legacy single-request workflow. For Flash SSML manuscripts, use
+`--ssml` (or `--model flash`) and follow [dashscope-dialogue.md](dashscope-dialogue.md).
+That workflow writes SSML without per-tag voice selectors and stores voice
+assignments in the companion JSON. Use `--legacy-ssml` only to reproduce the
+older single-request workflow.
 
 Use this workflow when asked to add Aliyun SSML to mixed-role prose or synthesize
 multiple characters in one request. Read `.agents/skills/qwen-tts/SKILL.md` for
@@ -27,7 +27,7 @@ otherwise use `plain`. Only whitespace may remain uncovered.
 Resolve all uncertain speakers and missing voice assignments in one question.
 Map manuscript roles to library names explicitly, e.g.
 `{"搭档":"Geny","男主持":"man-normal-cn"}`. The tool reads each name's
-`projects/voice-library/audio/<name>/voice.json`; inline objects containing
+`assets/voice-library/audio/<name>/voice.json`; inline objects containing
 `voice_id` and `model` are also accepted. Every voice must belong to the synthesis
 model. Names are local aliases; generated SSML uses complete cloud IDs.
 
@@ -74,7 +74,7 @@ validation; the latter is not sent to Aliyun. Plain-text calls remain unchanged.
 The reusable command compiles locally by default:
 
 ```powershell
-uv --cache-dir .cache/uv run --no-project --python .venv/Scripts/python.exe python -m examples.dashscope_ssml --source projects/my-project/manuscript.txt --roles projects/my-project/roles.json --project-dir projects/my-project
+uv --cache-dir .cache/uv run --no-project --python .venv/Scripts/python.exe python -m examples.dashscope_ssml --legacy-ssml --source video_projects/my-project/manuscript.txt --roles video_projects/my-project/roles.json --project-dir video_projects/my-project
 ```
 
 Add `--segments <reviewed-segments.json> --source-format plain` for agent-assigned

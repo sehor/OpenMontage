@@ -160,7 +160,7 @@ The sample checkpoint:
 
 The sample checkpoint is NOT a pipeline stage — it's a sub-checkpoint within the
 proposal stage. It does not produce a canonical artifact. It produces a rendered
-preview clip stored at `projects/<name>/assets/sample/sample_v{N}.mp4`.
+preview clip stored at `video_projects/<name>/assets/sample/sample_v{N}.mp4`.
 
 **Presentation format:**
 ```

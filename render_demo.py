@@ -23,7 +23,7 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parent
 COMPOSER_DIR = ROOT_DIR / "remotion-composer"
 PROPS_DIR = COMPOSER_DIR / "public" / "demo-props"
-OUTPUT_DIR = ROOT_DIR / "projects" / "demos" / "renders"
+OUTPUT_DIR = ROOT_DIR / "video_projects" / "demos" / "renders"
 
 DEMO_DESCRIPTIONS = {
     "world-in-numbers": "Global scale story with titles, stats, and charts",

@@ -122,8 +122,6 @@ class PixabayVideo(BaseTool):
                 error="PIXABAY_API_KEY not set. " + self.install_instructions,
             )
 
-        import requests
-
         start = time.time()
         query = inputs["query"]
 
@@ -142,13 +140,9 @@ class PixabayVideo(BaseTool):
             params["editors_choice"] = "true"
 
         try:
-            search_response = requests.get(
-                "https://pixabay.com/api/videos/",
-                params=params,
-                timeout=30,
-            )
-            search_response.raise_for_status()
-            data = search_response.json()
+            from lib.pixabay_client import PixabayClient
+            client = PixabayClient()
+            data = client.search("video", params)
 
             hits = data.get("hits", [])
 
@@ -188,12 +182,8 @@ class PixabayVideo(BaseTool):
 
             # Download immediately — Pixabay URLs expire
             video_url = video_info["url"]
-            video_response = requests.get(video_url, timeout=120)
-            video_response.raise_for_status()
-
             output_path = Path(inputs.get("output_path", f"pixabay_video_{hit['id']}.mp4"))
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            output_path.write_bytes(video_response.content)
+            client.download(video_url, output_path)
 
         except Exception as e:
             return ToolResult(success=False, error=f"Pixabay video search failed: {e}")

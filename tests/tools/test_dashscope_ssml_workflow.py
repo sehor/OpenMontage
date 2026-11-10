@@ -25,7 +25,7 @@ def run_args(tmp_path, monkeypatch):
     monkeypatch.setattr(workflow.registry, "discover", lambda _: None)
     monkeypatch.setattr(workflow.registry, "get", tools.get)
     project = tmp_path / "project"
-    return ["--source", str(source), "--roles", str(roles), "--project-dir", str(project), "--ssml"], tts, project, source
+    return ["--source", str(source), "--roles", str(roles), "--project-dir", str(project), "--legacy-ssml"], tts, project, source
 
 
 def test_compile_only_never_synthesizes_and_preserves_crlf(run_args):

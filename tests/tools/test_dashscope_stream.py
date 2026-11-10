@@ -168,8 +168,9 @@ def test_json_instead_of_sse_retains_request_id_without_download_or_retry(monkey
 
 def test_streaming_ssml_and_timestamps_are_forwarded_together(monkeypatch, tmp_path):
     post, _ = install_stream(monkeypatch, stream_payloads())
-    text = f'<speak voice="{MODEL}-clone"><sub alias="你好">HELLO</sub><break time="300ms"/></speak>'
+    text = '<speak><sub alias="你好">HELLO</sub><break time="300ms"/></speak>'
     result = DashScopeTTS().execute({"text": text, "model": "flash", "streaming": True,
+              "voice_id": MODEL + "-clone",
               "enable_ssml": True, "word_timestamp_enabled": True, "output_path": str(tmp_path / "ssml.wav")})
     assert result.success, result.error
     speech = post.call_args.kwargs["json"]["input"]

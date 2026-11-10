@@ -119,8 +119,6 @@ class PixabayImage(BaseTool):
                 error="PIXABAY_API_KEY not set. " + self.install_instructions,
             )
 
-        import requests
-
         start = time.time()
         query = inputs["query"]
 
@@ -143,13 +141,9 @@ class PixabayImage(BaseTool):
             params["editors_choice"] = "true"
 
         try:
-            search_response = requests.get(
-                "https://pixabay.com/api/",
-                params=params,
-                timeout=30,
-            )
-            search_response.raise_for_status()
-            data = search_response.json()
+            from lib.pixabay_client import PixabayClient
+            client = PixabayClient()
+            data = client.search("image", params)
 
             hits = data.get("hits", [])
             if not hits:
@@ -164,12 +158,8 @@ class PixabayImage(BaseTool):
             image_url = hit.get("largeImageURL", hit.get("webformatURL"))
 
             # Download immediately — Pixabay URLs contain embedded tokens that expire
-            image_response = requests.get(image_url, timeout=60)
-            image_response.raise_for_status()
-
             output_path = Path(inputs.get("output_path", f"pixabay_{hit['id']}.jpg"))
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            output_path.write_bytes(image_response.content)
+            client.download(image_url, output_path)
 
         except Exception as e:
             return ToolResult(success=False, error=f"Pixabay image search failed: {e}")

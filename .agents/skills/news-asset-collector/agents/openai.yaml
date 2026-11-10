@@ -1,0 +1,6 @@
+interface:
+  display_name: "NewsAssetCollector"
+  short_description: "Draft AI news reports linked to sources and footage"
+  default_prompt: "Use $news-asset-collector to find recent AI news, let me select stories, collect media and draft a Chinese report linked to the project assets."
+policy:
+  allow_implicit_invocation: true

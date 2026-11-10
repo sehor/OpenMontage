@@ -218,7 +218,7 @@ OpenMontage picks between Remotion and HyperFrames at proposal time (locked as `
 **Two free-ish paths:**
 
 - **Image-based video:** Piper narrates your script, images provide the visuals, and Remotion animates them into a polished edit.
-- **Local character animation:** SVG rigs, pose libraries, GSAP timelines, and HyperFrames render cartoon character acting to `projects/<project-name>/renders/final.mp4`.
+- **Local character animation:** SVG rigs, pose libraries, GSAP timelines, and HyperFrames render cartoon character acting to `video_projects/<project-name>/renders/final.mp4`.
 - **Real-footage video:** the documentary montage pipeline builds a CLIP-searchable corpus from Archive.org, NASA, Wikimedia Commons, and optional free-key sources like Pexels and Unsplash, then cuts together actual motion footage into a finished video.
 
 If you want the second one, prompt for a **documentary montage**, **tone poem**, or **stock-footage collage**, and explicitly say **use real footage only**.

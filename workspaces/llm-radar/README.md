@@ -32,25 +32,25 @@
 
 ```powershell
 $env:UV_CACHE_DIR = Join-Path (Get-Location) 'scratch/uv-cache'
-$radarSource = (Get-Content projects/llm-radar/config/source.local.json -Raw | ConvertFrom-Json).sourceRoot
+$radarSource = (Get-Content workspaces/llm-radar/config/source.local.json -Raw | ConvertFrom-Json).sourceRoot
 ```
 
 首次导入（已存在的快照会拒绝覆盖）：
 
 ```powershell
-uv run --offline --no-project --python .venv/Scripts/python.exe python projects/llm-radar/scripts/assemble.py import --source $radarSource --manifest projects/llm-radar/config/handoff.example.json --episode projects/llm-radar/config/episode.example.json --output projects/llm-radar/episodes/three-model-preview
+uv run --offline --no-project --python .venv/Scripts/python.exe python workspaces/llm-radar/scripts/assemble.py import --source $radarSource --manifest workspaces/llm-radar/config/handoff.example.json --episode workspaces/llm-radar/config/episode.example.json --output video_projects/llm-radar/episodes/three-model-preview
 ```
 
 验证已导入素材：
 
 ```powershell
-uv run --offline --no-project --python .venv/Scripts/python.exe python projects/llm-radar/scripts/assemble.py validate --output projects/llm-radar/episodes/three-model-preview
+uv run --offline --no-project --python .venv/Scripts/python.exe python workspaces/llm-radar/scripts/assemble.py validate --output video_projects/llm-radar/episodes/three-model-preview
 ```
 
 由 agent 按 `pipeline_defs/hybrid.yaml` 完成媒体审阅、idea、script、scene_plan，并保存提案和检查点后，准备片头片尾与合成参数：
 
 ```powershell
-uv run --offline --no-project --python .venv/Scripts/python.exe python projects/llm-radar/scripts/assemble.py prepare --output projects/llm-radar/episodes/three-model-preview
+uv run --offline --no-project --python .venv/Scripts/python.exe python workspaces/llm-radar/scripts/assemble.py prepare --output video_projects/llm-radar/episodes/three-model-preview
 ```
 
 `prepare` 需要 `artifacts/proposal_packet.json`。它只执行确定性包装工作，不创建审批结论或代替 agent 编排管线。重新 prepare 后，必须重新审阅并保存 assets/edit 检查点。
@@ -58,7 +58,7 @@ uv run --offline --no-project --python .venv/Scripts/python.exe python projects/
 完成 assets、edit 阶段审阅及检查点后：
 
 ```powershell
-uv run --offline --no-project --python .venv/Scripts/python.exe python projects/llm-radar/scripts/assemble.py render --output projects/llm-radar/episodes/three-model-preview
+uv run --offline --no-project --python .venv/Scripts/python.exe python workspaces/llm-radar/scripts/assemble.py render --output video_projects/llm-radar/episodes/three-model-preview
 ```
 
 `render` 核验已有检查点和合成参数，通过 registry 调用 `video_compose` 的显式 FFmpeg 路径，并保存结果。渲染后 agent 仍需核对关键帧、音轨及正式/草稿状态，写入 compose 检查点。不会自动发布。
@@ -66,7 +66,7 @@ uv run --offline --no-project --python .venv/Scripts/python.exe python projects/
 测试：
 
 ```powershell
-uv run --offline --no-project --python .venv/Scripts/python.exe python -m pytest projects/llm-radar/tests tests/tools/test_video_compose_frame_rate.py -q
+uv run --offline --no-project --python .venv/Scripts/python.exe python -m pytest workspaces/llm-radar/tests tests/tools/test_video_compose_frame_rate.py -q
 ```
 
 ## 下一期怎么复用
@@ -96,5 +96,5 @@ uv run --offline --no-project --python .venv/Scripts/python.exe python -m pytest
 可复查成片规格和原音轨保留情况（不替代主观试听）：
 
 ```powershell
-uv run --offline --no-project --python .venv/Scripts/python.exe python projects/llm-radar/scripts/verify_media.py --output projects/llm-radar/episodes/three-model-preview
+uv run --offline --no-project --python .venv/Scripts/python.exe python workspaces/llm-radar/scripts/verify_media.py --output video_projects/llm-radar/episodes/three-model-preview
 ```

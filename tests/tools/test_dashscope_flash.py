@@ -48,7 +48,10 @@ def test_flash_compiler_single_voice_and_no_references():
     for chunk in compiled['chunks']:
         request = chunk['synthesis_inputs']
         assert 'reference_paths' not in request
-        assert validate_ssml(request['text'], MODEL, request['ssml_voice_models'])['voice_ids'] == [request['voice_id']]
+        assert 'voice' not in ET.fromstring(request['text']).attrib
+        assert request['voice_id'] == ROLES[chunk['role']]['voice_id']
+        assert validate_ssml(request['text'], MODEL, request['ssml_voice_models'],
+                             request_voice=request['voice_id'])['voice_ids'] == [request['voice_id']]
         assert chunk['text']
 
 
@@ -70,7 +73,9 @@ def test_pronunciation_display_and_reading_are_distinct():
     compiled = plan(source, segments=[{'role': 'A', 'start': 0, 'end': len(source), 'ssml': ssml}], source_format='plain')
     chunk = compiled['chunks'][0]
     assert chunk['text'] == source
-    assert chunk['synthesis_inputs']['text'] == ssml
+    converted = ssml.replace(' voice="voice-a"', '')
+    assert compiled['ssml'] == compiled['segments'][0]['ssml'] == converted
+    assert chunk['synthesis_inputs']['text'] == converted
     assert 'reading_map' not in chunk
     with pytest.raises(ValueError):
         validate_ssml('<speak voice="voice-a"><phoneme alphabet="py" ph="chong2">重庆</phoneme></speak>', MODEL, {'voice-a': MODEL})

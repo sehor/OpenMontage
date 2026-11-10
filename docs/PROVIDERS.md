@@ -1,5 +1,9 @@
 # OpenMontage Provider Guide
 
+Gemini 3.8 Flash TTS now has a separate single-speaker synthesis and voice
+replication integration. See [Gemini speech](gemini-speech.md) for setup,
+recording requirements and verification. Existing Google Cloud TTS is unchanged.
+
 Everything you need to know about every provider in OpenMontage — setup instructions, pricing, free tiers, and what each unlocks.
 
 ---
@@ -578,7 +582,7 @@ The CLI is consumed as `npx hyperframes`. Do not use `npx @hyperframes/cli`; tha
 | **Website-to-video** | Browser-captured site compositions with HyperFrames validation |
 | **Character animation** | SVG character rigs, pose/action timelines, and GSAP acting beats rendered to `renders/final.mp4` |
 
-HyperFrames workspaces live under `projects/<project-name>/hyperframes/`. Final videos still follow the normal OpenMontage convention: `projects/<project-name>/renders/final.mp4`.
+HyperFrames workspaces live under `workspaces/<project-name>/hyperframes/`. Final videos still follow the normal OpenMontage convention: `video_projects/<project-name>/renders/final.mp4`.
 
 **Cost:** Free. Always local.
 

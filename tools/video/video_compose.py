@@ -1142,10 +1142,13 @@ class VideoCompose(BaseTool):
                 error=f"Could not import hyperframes_compose: {e}",
             )
 
-        workspace_path = (
-            inputs.get("workspace_path")
-            or str(output_path.parent.parent / "hyperframes")
-        )
+        project_dir = output_path.resolve().parent.parent
+        repo_root = Path(__file__).resolve().parents[2]
+        resource_root = repo_root / "video_projects"
+        default_workspace = project_dir / "hyperframes"
+        if project_dir.is_relative_to(resource_root):
+            default_workspace = repo_root / "workspaces" / project_dir.relative_to(resource_root) / "hyperframes"
+        workspace_path = inputs.get("workspace_path") or str(default_workspace)
 
         # Pass the playbook through so the style bridge can emit CSS vars.
         playbook_data = inputs.get("playbook")

@@ -23,7 +23,8 @@ def render(items, attrs):
     from xml.sax.saxutils import escape, quoteattr
     body = "".join(markup if markup.startswith("<") and len(markup) > 1 else escape(markup)
                    for markup, _ in items)
-    return ("<speak " + " ".join(f"{k}={quoteattr(v)}" for k, v in attrs.items()) + ">" + body + "</speak>").replace("\r", "&#13;")
+    attributes = "".join(f" {key}={quoteattr(value)}" for key, value in attrs.items())
+    return (f"<speak{attributes}>{body}</speak>").replace("\r", "&#13;")
 
 
 def compile_flash(source, roles, segments, source_format, model, library):
@@ -32,16 +33,18 @@ def compile_flash(source, roles, segments, source_format, model, library):
     for value in roles.values():
         if isinstance(value, dict) and "model" in value:
             value["model"] = speech_model(value["model"]).model
-    compiled = compile_ssml(source, roles, segments, source_format, model, library)
-    fragments = ET.fromstring("<root>" + compiled["ssml"] + "</root>")
+    compiled = compile_ssml(source, roles, segments, source_format, model, library, segmented=True)
     chunks = []
-    for turn, (segment, speak) in enumerate(zip(compiled["segments"], fragments)):
+    for turn, segment in enumerate(compiled["segments"]):
+        speak = ET.fromstring(segment["ssml"])
         gap = segment.get("gap_after_ms")
         if gap is not None:
             from lib.dashscope_ssml import number
             number(gap, 0, 10000, "gap_after_ms")
         voice = compiled["roles"][segment["role"]]
-        annotated = any(k in segment for k in ("ssml", "breaks", "rate", "pitch", "volume"))
+        request_attrs = speak.attrib
+        original = segments[turn] if segments is not None else {}
+        annotated = any(k in original for k in ("ssml", "breaks", "rate", "pitch", "volume"))
         use_ssml = voice.get("ssml_supported") is True
         if annotated and not use_ssml:
             raise ValueError(f"SSML support must be confirmed for {segment['role']}")
@@ -51,8 +54,8 @@ def compile_flash(source, roles, segments, source_format, model, library):
             # Count serialized markup, conservatively including the wrapper.
             size, cuts = 0, []
             for i, item in enumerate(remaining):
-                size += len(render([item], speak.attrib)) - len(render([], speak.attrib)) if use_ssml else len(item[1])
-                if size + (len(render([], speak.attrib)) if use_ssml else 0) > profile.max_prompt_length:
+                size += len(render([item], request_attrs)) - len(render([], request_attrs)) if use_ssml else len(item[1])
+                if size + (len(render([], request_attrs)) if use_ssml else 0) > profile.max_prompt_length:
                     break
                 if re.search(r"[。！？!?；;\n]$", item[1]):
                     cuts.append(i + 1)
@@ -69,10 +72,11 @@ def compile_flash(source, roles, segments, source_format, model, library):
             if not text.strip():
                 raise ValueError("Split would create an empty speech chunk")
             synthesis = {"model": model, "voice_id": voice["voice_id"], "format": "wav", "sample_rate": 24000,
-                         "text": render(batch, speak.attrib) if use_ssml else text}
+                         "text": render(batch, request_attrs) if use_ssml else text}
             if use_ssml:
                 synthesis.update(enable_ssml=True, ssml_voice_models={voice["voice_id"]: model})
-                validate_ssml(synthesis["text"], model, synthesis["ssml_voice_models"])
+                validate_ssml(synthesis["text"], model, synthesis["ssml_voice_models"],
+                              request_voice=synthesis["voice_id"])
             instruction = "；".join(segment[k] for k in ("direction", "emotion") if segment.get(k))
             if instruction:
                 synthesis["instruction"] = instruction

@@ -21,7 +21,7 @@ class DashScopeDialogue(BaseTool):
     input_schema = deepcopy(DashScopeSSML.input_schema)
     input_schema["properties"]["roles"]["additionalProperties"] = {
         "oneOf": [{"type": "string", "minLength": 1}, {"type": "object"}]}
-    side_effects = ["writes source, dialogue prompt, role mappings and validation artifacts"]
+    side_effects = ["writes source, dialogue prompt, segmented SSML, role mappings and validation artifacts"]
 
     def get_status(self):
         return ToolStatus.AVAILABLE
@@ -40,6 +40,10 @@ class DashScopeDialogue(BaseTool):
             files[0].write_text(inputs["source_text"], encoding="utf-8", newline="")
             files[1].write_text(result.get("text_prompt", json.dumps(result.get("chunks", []), ensure_ascii=False, indent=2)), encoding="utf-8")
             files[2].write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+            if result.get("mode") == "segmented":
+                ssml_path = folder/f"{name}.ssml"
+                ssml_path.write_text(result["ssml"], encoding="utf-8", newline="")
+                files.append(ssml_path)
             return ToolResult(success=True, model=result["model"], data=result, artifacts=[str(p) for p in files])
         except (ValueError, KeyError, TypeError, OSError, jsonschema.ValidationError) as exc:
             return ToolResult(success=False, error=f"Dialogue compilation failed: {exc}")
